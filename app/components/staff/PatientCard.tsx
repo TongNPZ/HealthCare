@@ -1,6 +1,6 @@
 // src/components/staff/PatientCard.tsx
 import { User } from "lucide-react";
-import { PatientSession } from "@/hooks/useStaffDashboard";
+import { PatientSession } from "@/lib/types";
 
 interface PatientCardProps {
   patient: PatientSession;
@@ -17,9 +17,9 @@ export const PatientCard = ({
   t,
   statusBadge,
 }: PatientCardProps) => {
-  const timeAgo = Math.floor(
-    (Math.max(currentTime, patient.lastUpdated) - patient.lastUpdated) / 60000,
-  );
+  // 💡 แก้สูตรการคำนวณบรรทัดนี้: หาผลลัพธ์ออกมาก่อน ถ้าติดลบให้ปัดเป็น 0
+  const timeAgo = Math.max(0, Math.floor((currentTime - patient.lastUpdated) / 60000));
+
   const isExpiredSoon = timeAgo >= 8;
 
   return (

@@ -18,7 +18,7 @@ const resources = {
             nationality: "Nationality",
             language: "Preferred Language(s)",
             address: "Complete Home Address",
-            submit: "Complete Registration",
+            submit: "Submit",
             optional: "Optional",
             selectGender: "Select Gender",
             selectDate: "Select Date",
