@@ -19,7 +19,7 @@ export const PatientDetailView = ({ patient, t }: { patient: PatientSession; t: 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-      {/* 💡 ข้อมูลส่วนตัว (เพิ่ม Middle Name เข้าไปให้ครบ) */}
+      {/* 💡 ข้อมูลส่วนตัว (คอลัมน์ซ้าย) */}
       <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
         <h3 className="flex items-center gap-2 font-bold text-slate-800 mb-4">
           <User className="w-4 h-4 text-blue-500" /> {t("personalInfo") || "Personal Information"}
@@ -32,7 +32,7 @@ export const PatientDetailView = ({ patient, t }: { patient: PatientSession; t: 
         <DataRow label={t("religion") || "Religion"} value={formData.religion} tFallback="-" />
       </div>
 
-      {/* 💡 ข้อมูลการติดต่อ (ย้าย Language มาอยู่กับ Nationality แล้ว) */}
+      {/* 💡 ข้อมูลการติดต่อ (คอลัมน์ขวา: Nationality และ Language อยู่ด้วยกันแล้ว) */}
       <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
         <h3 className="flex items-center gap-2 font-bold text-slate-800 mb-4">
           <Phone className="w-4 h-4 text-indigo-500" /> {t("contactInfo") || "Contact Information"}

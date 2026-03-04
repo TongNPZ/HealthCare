@@ -85,8 +85,17 @@ export default function PatientModePage() {
 
         const validSessions = prev.filter(id => {
           const submittedAt = localStorage.getItem(`submitted_${id}`);
+
           if (submittedAt) {
-            // คำนวณเวลาที่ผ่านไป
+            // 💡 ดักจับบั๊ก: ถ้าไปเจอข้อมูลเก่าที่เซฟเป็นคำว่า "true" ให้ถือว่าหมดอายุและลบทิ้งทันที
+            if (submittedAt === "true") {
+              localStorage.removeItem(`submitted_${id}`);
+              localStorage.removeItem(`formData_${id}`);
+              isChanged = true;
+              return false; // เตะออกจากรายการ
+            }
+
+            // คำนวณเวลาที่ผ่านไป (สำหรับคนที่เซฟเป็น Timestamp ถูกต้องแล้ว)
             const timePassed = now - parseInt(submittedAt);
             if (timePassed >= SUBMITTED_RETENTION) {
               // ลบข้อมูลขยะออกจากเครื่อง
@@ -116,7 +125,6 @@ export default function PatientModePage() {
     const interval = setInterval(cleanupExpiredSessions, 60000);
     return () => clearInterval(interval);
   }, [isMounted]);
-
   // 💡 ฟังก์ชันลบทั้งหมด (ข้ามคนที่กรอกเสร็จแล้ว)
   const clearSessions = async () => {
     const sessionsToKeep: string[] = [];

@@ -41,6 +41,8 @@ function PatientFormContent() {
               </div>
             ) : (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
+
+                {/* 💡 เปิด Grid 2 คอลัมน์ */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
                   <InputField label={t("firstName")} registration={register("firstName")} error={errors.firstName?.message} placeholder={t("firstNamePlaceholder")} icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>} />
                   <InputField label={t("middleName")} registration={register("middleName")} required={false} error={errors.middleName?.message} placeholder={t("optional")} />
@@ -88,8 +90,6 @@ function PatientFormContent() {
                           placeholder={t("selectReligion") || "Select Religion"}
                           isClearable
                           value={religionOptions.find((c) => c.value === field.value) || null}
-
-                          // 💡 แก้ไขบรรทัด onChange ตรงนี้ครับ
                           onChange={(val) => field.onChange((val as SingleValue<SelectOption>)?.value ?? "")}
                         />
                       )}
@@ -113,18 +113,22 @@ function PatientFormContent() {
                     )} />
                     {errors.nationality && <span className="text-rose-500 text-xs font-medium ml-1">{errors.nationality.message}</span>}
                   </div>
-                </div>
 
-                <div className="flex flex-col gap-1.5 mb-5">
-                  <label className="text-sm font-semibold text-slate-700 ml-1">{t("language")} *</label>
-                  <Controller name="preferredLanguage" control={control} render={({ field }) => (
-                    <Select {...field} isMulti options={languageOptions} value={languageOptions.filter(lang => field.value?.includes(lang.value))} onChange={(val) => field.onChange((val as MultiValue<{ value: string; label: string }>).map(s => s.value))} styles={getCustomSelectStyles(!!errors.preferredLanguage)} />
-                  )} />
-                  {errors.preferredLanguage && <span className="text-rose-500 text-xs font-medium ml-1">{errors.preferredLanguage.message}</span>}
+                  {/* 💡 ย้าย Language มาไว้ตรงนี้ เพื่อให้อยู่คู่ซ้ายขวากับ Nationality */}
+                  <div className="flex flex-col gap-1.5 mb-5">
+                    <label className="text-sm font-semibold text-slate-700 ml-1">{t("language")} *</label>
+                    <Controller name="preferredLanguage" control={control} render={({ field }) => (
+                      <Select {...field} isMulti options={languageOptions} value={languageOptions.filter(lang => field.value?.includes(lang.value))} onChange={(val) => field.onChange((val as MultiValue<{ value: string; label: string }>).map(s => s.value))} styles={getCustomSelectStyles(!!errors.preferredLanguage)} />
+                    )} />
+                    {errors.preferredLanguage && <span className="text-rose-500 text-xs font-medium ml-1">{errors.preferredLanguage.message}</span>}
+                  </div>
+
                 </div>
+                {/* 💡 ปิด Grid 2 คอลัมน์ตรงนี้ */}
 
                 <TextAreaField label={t("address")} registration={register("address")} placeholder={t("addressPlaceholder")} error={errors.address?.message} icon={<svg className="w-5 h-5 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>} />
 
+                {/* 💡 หมวด: ผู้ติดต่อฉุกเฉิน (Emergency Contact) - เอาสีพื้นหลังสีแดงออกให้คลีน */}
                 <div className="pt-4 mb-8">
                   <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
                     Emergency Contact <span className="text-sm font-normal text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">Optional</span>
