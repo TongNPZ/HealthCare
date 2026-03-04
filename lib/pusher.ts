@@ -12,7 +12,6 @@ export const pusherServer = new PusherServer({
 });
 
 // 2. ตั้งค่า Pusher สำหรับฝั่ง Client (ใช้ใน React Components เพื่อ 'รับ' ข้อมูลแบบ Real-time)
-// เช็คก่อนว่าไม่ได้อยู่บน Server (ป้องกัน error ตอน Build)
 export const pusherClient =
     typeof window !== 'undefined'
         ? new PusherClient(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
