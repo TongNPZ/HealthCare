@@ -2,20 +2,24 @@
 import { z } from "zod";
 import i18n from "./i18n";
 
-const customErrorMap = (issue: z.ZodIssueOptionalMessage, ctx: z.ErrorMapCtx): { message: string } => {
-    if (issue.code === "invalid_type") {
+const customErrorMap = (...args: any[]): { message: string } => {
+
+    const issue = args[0];
+    const ctx = args[1];
+
+    const code = String(issue?.code);
+
+    if (code === "invalid_type" || code === "too_small") {
         return { message: String(i18n.t("errRequired")) };
     }
 
-    if (issue.code === "too_small") {
-        return { message: String(i18n.t("errRequired")) };
-    }
+    if (code === "invalid_string" || code === "invalid_format") {
+        const validation = issue?.validation ? String(issue.validation) : "";
 
-    if (issue.code === "invalid_string") {
-        if (issue.validation === "email") {
+        if (validation === "email") {
             return { message: String(i18n.t("errEmail")) };
         }
-        if (issue.validation === "regex") {
+        if (validation === "regex") {
             return { message: String(i18n.t("errPhone")) };
         }
     }
@@ -23,7 +27,7 @@ const customErrorMap = (issue: z.ZodIssueOptionalMessage, ctx: z.ErrorMapCtx): {
     return { message: ctx?.defaultError ?? String(i18n.t("errRequired")) };
 };
 
-z.setErrorMap(customErrorMap);
+z.setErrorMap(customErrorMap as any);
 
 export const patientFormSchema = z.object({
     firstName: z.string().min(1),

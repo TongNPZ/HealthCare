@@ -56,7 +56,17 @@ const resources = {
             contactName: "Contact Name",
             relationship: "Relationship",
             notProvided: "Not provided",
-            waiting: "Waiting..."
+            waiting: "Waiting...",
+
+            // 💡 คำแปลใหม่สำหรับระบบ Dashboard หลายคน
+            activePatients: "Active Patients",
+            online: "Online",
+            selectPatient: "Select a patient to view their real-time progress.",
+            noActivePatients: "No active patients right now",
+            phoneNotProvided: "Phone not provided",
+            backToList: "Back to List",
+            patientDetails: "Patient Details",
+            patientId: "ID"
         }
     },
     th: {
@@ -112,10 +122,21 @@ const resources = {
             contactName: "ชื่อผู้ติดต่อ",
             relationship: "ความสัมพันธ์",
             notProvided: "ไม่ได้ระบุ",
-            waiting: "รอข้อมูล..."
+            waiting: "รอข้อมูล...",
+
+            // 💡 คำแปลใหม่สำหรับระบบ Dashboard หลายคน
+            activePatients: "ผู้ป่วยที่กำลังออนไลน์",
+            online: "ออนไลน์",
+            selectPatient: "เลือกผู้ป่วยเพื่อดูความคืบหน้าแบบเรียลไทม์",
+            noActivePatients: "ไม่มีผู้ป่วยออนไลน์ในขณะนี้",
+            phoneNotProvided: "ไม่ได้ระบุเบอร์โทร",
+            backToList: "กลับไปหน้ารวม",
+            patientDetails: "รายละเอียดผู้ป่วย",
+            patientId: "รหัส"
         }
     }
 };
+
 const savedLang = typeof window !== 'undefined' ? localStorage.getItem('appLang') || 'th' : 'th';
 
 i18n

@@ -128,6 +128,7 @@ const TextAreaField = ({ label, required = true, error, registration, placeholde
 }
 
 export default function PatientForm() {
+  const [patientId, setPatientId] = useState<string>("");
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 
@@ -156,7 +157,8 @@ export default function PatientForm() {
     return ISO6391.getAllNames().map(name => ({ value: name, label: name }));
   }, []);
 
-  const { register, handleSubmit, watch, control, trigger, formState: { errors } } = useForm<PatientFormData>({
+  // 💡 ดึงฟังก์ชัน reset ออกมาเพื่อใช้โหลดข้อมูลเก่า
+  const { register, handleSubmit, watch, control, trigger, reset, formState: { errors } } = useForm<PatientFormData>({
     resolver: zodResolver(patientFormSchema),
     defaultValues: {
       firstName: "", middleName: "", lastName: "", dateOfBirth: "", gender: "",
@@ -167,27 +169,57 @@ export default function PatientForm() {
 
   const allFields = watch();
 
+  // 💡 1. สร้าง Guest ID และโหลดข้อมูลเก่าที่เคยเซฟไว้
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      let currentId = localStorage.getItem("guest_patient_id");
+      if (!currentId) {
+        currentId = "GUEST-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+        localStorage.setItem("guest_patient_id", currentId);
+      }
+      setPatientId(currentId);
+
+      const savedData = localStorage.getItem("saved_patient_form");
+      if (savedData) {
+        try {
+          reset(JSON.parse(savedData));
+        } catch (e) {
+          console.error("Failed to parse saved data", e);
+        }
+      }
+    }
+  }, [reset]);
+
+  // 💡 2. Auto-save ข้อมูลลง localStorage ทุกครั้งที่พิมพ์
+  useEffect(() => {
+    if (isMounted && !isSubmitted) {
+      localStorage.setItem("saved_patient_form", JSON.stringify(allFields));
+    }
+  }, [JSON.stringify(allFields), isMounted, isSubmitted]);
+
+  // สลับภาษาและเคลียร์ข้อความแจ้งเตือน Error
   useEffect(() => {
     const errorKeys = Object.keys(errors) as (keyof PatientFormData)[];
     if (errorKeys.length > 0) {
       trigger(errorKeys);
     }
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [i18n.language]);
 
+  // 💡 3. เพิ่ม patientId เข้าไปใน API ส่งให้ Pusher
   useEffect(() => {
-    if (isSubmitted || !isMounted) return;
+    if (isSubmitted || !isMounted || !patientId) return;
     const syncData = async (status: string) => {
       await fetch("/api/patient-update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ formData: allFields, status }),
+        body: JSON.stringify({ formData: allFields, status, patientId }), // 👈 เพิ่มตรงนี้
       });
     };
     syncData("actively filling");
     const timeoutId = setTimeout(() => syncData("inactive"), 2000);
     return () => clearTimeout(timeoutId);
-  }, [JSON.stringify(allFields), isSubmitted, isMounted]);
+  }, [JSON.stringify(allFields), isSubmitted, isMounted, patientId]);
 
   const onSubmit = (data: PatientFormData) => {
     Swal.fire({
@@ -203,11 +235,15 @@ export default function PatientForm() {
     }).then((result) => {
       if (result.isConfirmed) {
         setIsSubmitted(true);
+        // 💡 4. ส่งสถานะ submitted พร้อม patientId
         fetch("/api/patient-update", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ formData: data, status: "submitted" }),
+          body: JSON.stringify({ formData: data, status: "submitted", patientId }),
         });
+
+        // 💡 5. ลบข้อมูลที่ Auto-save ไว้หลังจากกด Submit สำเร็จ
+        localStorage.removeItem("saved_patient_form");
 
         Swal.fire({
           title: t('successTitle'),
@@ -324,7 +360,7 @@ export default function PatientForm() {
                         value={field.value}
                         onChange={(value) => field.onChange(value)}
                         containerClass="!w-full"
-                        inputClass="!w-full !h-11 !text-base !border-slate-200 !bg-slate-50/50 !rounded-xl focus:!border-blue-500 focus:!ring-4 focus:!ring-blue-500/10 hover:!border-blue-300 transition-all duration-200"
+                        inputClass="!w-full !h-11 !text-base !border-slate-200 !bg-slate-50/50 !rounded-xl focus:!border-blue-500 focus:!ring-4 focus:!ring-blue-500/10 hover:border-blue-300 transition-all duration-200"
                         buttonClass="!border-slate-200 !rounded-l-xl !bg-slate-100"
                         placeholder={t('phone')}
                       />

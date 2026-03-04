@@ -5,8 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import "@/lib/i18n";
 
-// 💡 Import ไอคอนที่เกี่ยวกับแพทย์จาก lucide-react
-import { HeartPulse, Cross } from 'lucide-react';
+import { HeartPulse, } from 'lucide-react';
 
 interface HeaderProps {
     title: string;
@@ -17,12 +16,10 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
-        // 💡 ป้องกัน Cascading Renders
         const timer = setTimeout(() => setIsMounted(true), 0);
         return () => clearTimeout(timer);
     }, []);
 
-    // ฟังก์ชันสลับภาษา (อัปเดตทันที ไม่ต้อง Reload หน้าเว็บ)
     const toggleLanguage = () => {
         const newLang = i18n.language === 'th' ? 'en' : 'th';
 
@@ -31,27 +28,20 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
         i18n.changeLanguage(newLang);
     };
 
-    // ป้องกัน Hydration Error
     if (!isMounted) return null;
 
-    // เช็คภาษาปัจจุบัน
     const currentLang = i18n.language || 'th';
 
     return (
         <header className="w-full bg-white border-b border-slate-100 py-6 font-sans">
             <div className="max-w-4xl mx-auto px-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
 
-                {/* Logo & Brand Name */}
-                <div className="flex items-center gap-3">
-                    {/* 💡 ส่วนไอคอน: ปรับพื้นหลังเป็นสี indigo */}
-                    <div className="w-11 h-11 bg-indigo-50 rounded-2xl flex items-center justify-center shadow-inner border border-indigo-100 shrink-0">
-                        {/* 💡 เลือกไอคอนที่ชอบตรงนี้ครับ */}
 
-                        {/* แบบ A: รูปหัวใจและกราฟหัวใจ (แนะนำ) */}
+                <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 bg-indigo-50 rounded-2xl flex items-center justify-center shadow-inner border border-indigo-100 shrink-0">
+
                         <HeartPulse className="w-6 h-6 text-indigo-600" strokeWidth={2.5} />
 
-                        {/* แบบ B: รูปกากบาทพยาบาล (ถ้าชอบแบบนี้ให้คอมเมนต์แบบ A แล้วเปิดใช้แบบ B) */}
-                        {/* <Cross className="w-6 h-6 text-indigo-600" strokeWidth={3} /> */}
                     </div>
                     <div>
                         <h1 className="text-xl font-bold text-slate-800 tracking-tight">HealthCare+</h1>
@@ -65,7 +55,6 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                         <span className="text-sm font-semibold text-slate-600">{title}</span>
                     </div>
 
-                    {/* ปุ่มเปลี่ยนภาษา พร้อมไอคอนธงชาติ */}
                     <button
                         type="button"
                         onClick={toggleLanguage}
