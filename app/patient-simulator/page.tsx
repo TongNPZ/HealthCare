@@ -1,21 +1,23 @@
-// src/app/patient-mode/page.tsx
 "use client";
 
 import Link from "next/link";
 import { ChevronLeft, Plus, User, Trash2 } from "lucide-react";
 import { usePatientMode } from "@/hooks/usePatientMode";
-import { PatientCard } from "../components/patient-mode/PatientCard";
+// Update the import path and component name
+import { SimulatorPatientCard } from "../components/patient-mode/SimulatorPatientCard";
 
 export default function PatientModePage() {
   const {
     sessions, isMounted, createNewUser, removeSingleUser, clearSessions, router
   } = usePatientMode();
 
+  // Prevent hydration errors
   if (!isMounted) return null;
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center p-4 md:p-8 font-sans">
       <div className="w-full max-w-5xl">
+        {/* Navigation Back */}
         <Link
           href="/"
           className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-600 mb-6 transition-colors w-fit bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200"
@@ -23,6 +25,7 @@ export default function PatientModePage() {
           <ChevronLeft className="w-4 h-4" /> Back to Main Menu
         </Link>
 
+        {/* Main Simulator Card */}
         <div className="bg-white rounded-[2rem] shadow-xl shadow-blue-900/5 p-6 md:p-10 border border-slate-100 min-h-[70vh]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4 border-b border-slate-100 pb-6">
             <div>
@@ -40,6 +43,7 @@ export default function PatientModePage() {
             </button>
           </div>
 
+          {/* Empty State vs Grid View */}
           {sessions.length === 0 ? (
             <div className="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center">
               <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4">
@@ -50,8 +54,9 @@ export default function PatientModePage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Use the new component name here */}
               {sessions.map((id, index) => (
-                <PatientCard
+                <SimulatorPatientCard
                   key={id}
                   id={id}
                   index={index}
@@ -63,6 +68,7 @@ export default function PatientModePage() {
             </div>
           )}
 
+          {/* Clear All Action */}
           {sessions.length > 0 && (
             <div className="mt-10 pt-6 border-t border-slate-100 flex justify-end">
               <button

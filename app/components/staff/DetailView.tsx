@@ -1,8 +1,8 @@
-// app/components/staff/DetailView.tsx
 import React from 'react';
 import { User, MapPin, Phone, ShieldAlert } from "lucide-react";
 import { PatientSession } from "@/lib/types";
 
+// Reusable component for displaying data rows
 const DataRow = ({ label, value, tFallback }: { label: string; value?: string | string[]; tFallback: string }) => (
   <div className="flex justify-between items-center py-3 border-b border-slate-50 last:border-0">
     <span className="text-sm text-slate-500 font-medium">{label}</span>
@@ -13,13 +13,13 @@ const DataRow = ({ label, value, tFallback }: { label: string; value?: string | 
 );
 
 export const PatientDetailView = ({ patient, t }: { patient: PatientSession; t: (key: string) => string }) => {
-  // ดึงข้อมูล formData ออกมา (เผื่อกรณีข้อมูลยังโหลดไม่เสร็จ)
+  // Extract formData safely to handle loading states
   const formData = patient?.formData || {};
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-      {/* 💡 ข้อมูลส่วนตัว (คอลัมน์ซ้าย) */}
+      {/* Personal Information Section */}
       <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
         <h3 className="flex items-center gap-2 font-bold text-slate-800 mb-4">
           <User className="w-4 h-4 text-blue-500" /> {t("personalInfo") || "Personal Information"}
@@ -32,7 +32,7 @@ export const PatientDetailView = ({ patient, t }: { patient: PatientSession; t: 
         <DataRow label={t("religion") || "Religion"} value={formData.religion} tFallback="-" />
       </div>
 
-      {/* 💡 ข้อมูลการติดต่อ (คอลัมน์ขวา: Nationality และ Language อยู่ด้วยกันแล้ว) */}
+      {/* Contact Information Section */}
       <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
         <h3 className="flex items-center gap-2 font-bold text-slate-800 mb-4">
           <Phone className="w-4 h-4 text-indigo-500" /> {t("contactInfo") || "Contact Information"}
@@ -43,7 +43,7 @@ export const PatientDetailView = ({ patient, t }: { patient: PatientSession; t: 
         <DataRow label={t("language") || "Preferred Language"} value={formData.preferredLanguage} tFallback="-" />
       </div>
 
-      {/* ที่อยู่ (Address) */}
+      {/* Address Section */}
       <div className="md:col-span-2 bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
         <h3 className="flex items-center gap-2 font-bold text-slate-800 mb-4">
           <MapPin className="w-4 h-4 text-emerald-500" /> {t("address") || "Address"}
@@ -53,7 +53,7 @@ export const PatientDetailView = ({ patient, t }: { patient: PatientSession; t: 
         </p>
       </div>
 
-      {/* ผู้ติดต่อฉุกเฉิน (Emergency Contact) */}
+      {/* Emergency Contact Section */}
       <div className="md:col-span-2 bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
         <h3 className="flex items-center gap-2 font-bold text-slate-800 mb-4">
           <ShieldAlert className="w-4 h-4 text-amber-500" /> Emergency Contact

@@ -5,134 +5,208 @@ import { initReactI18next } from 'react-i18next';
 const resources = {
     en: {
         translation: {
-            header: "New Patient Registration",
-            subtitle: "Please provide accurate information for medical records.",
+            // --- MAIN PAGE (Home) ---
+            mainTitle: "Patient Real-time System",
+            mainSubtitle: "Select a mode to start the application",
+            patientModeBtn: "Patient Simulator",
+            patientModeDesc: "Create and simulate patient form filling",
+            staffModeBtn: "Staff Dashboard",
+            staffModeDesc: "Monitor patient data in real-time",
+
+            // --- NAVIGATION & COMMON ---
+            backToMenu: "Back to Main Menu",
+            loading: "Loading...",
+            lastUpdated: "Last updated",
+            justNow: "Just now",
+            minsAgo: "m ago",
+
+            // --- PATIENT SIMULATOR PAGE ---
+            simulatorTitle: "Patient Simulator",
+            simulatorDesc: "Create user cards to test the real-time dashboard seamlessly.",
+            createUserBtn: "Create User Card",
+            clearAllBtn: "Clear All Users",
+            noUsersTitle: "No active users",
+            noUsersDesc: "Click the button above to create a new patient card.",
+            fillForm: "Fill Form",
+            editForm: "Edit Form",
+            patientId: "ID",
+            deleteUser: "Delete this user",
+
+            // --- PATIENT FORM PAGE ---
+            formHeader: "New Patient Registration",
+            formSubtitle: "Please provide accurate information for medical records.",
             personalInfo: "Personal Information",
+            contactInfo: "Contact Information",
+            emergencyContact: "Emergency Contact",
+            addressSection: "Complete Home Address",
+
+            // Input Labels & Placeholders
             firstName: "First Name",
+            firstNamePlace: "e.g. John",
             middleName: "Middle Name",
+            middleNamePlace: "Optional",
             lastName: "Last Name",
+            lastNamePlace: "e.g. Doe",
             dob: "Date of Birth",
             gender: "Gender",
             phone: "Phone Number",
             email: "Email Address",
             nationality: "Nationality",
             language: "Preferred Language(s)",
-            address: "Complete Home Address",
-            submit: "Submit",
-            optional: "Optional",
+            religion: "Religion",
+            contactName: "Contact Name",
+            relationship: "Relationship",
+            address: "Address Details",
+            addressPlace: "House No., Street, District, Province...",
+
+            // Select Options
             selectGender: "Select Gender",
+            male: "Male",
+            female: "Female",
             selectDate: "Select Date",
-            searchCountry: "Search country...",
-            searchLang: "Select languages...",
-            confirmTitle: "Confirm Information?",
-            confirmText: "Please verify that all information is accurate before submitting.",
-            btnConfirm: "Submit",
+            selectReligion: "Select Religion",
+            buddhism: "Buddhism",
+            christianity: "Christianity",
+            islam: "Islam",
+            hinduism: "Hinduism",
+            sikhism: "Sikhism",
+            others: "Others",
+
+            // Form Actions & Modals
+            submitBtn: "Submit Information",
+            confirmTitle: "Confirm Submission?",
+            confirmText: "Please verify all information before submitting.",
+            btnConfirm: "Confirm",
             btnCancel: "Cancel",
             successTitle: "Success!",
             successText: "Your registration has been submitted securely.",
-            completedTitle: "Completed",
+            completedTitle: "Registration Completed",
             completedText: "Our staff has received your data.",
-            male: "Male",
-            female: "Female",
-            firstNamePlaceholder: "John",
-            lastNamePlaceholder: "Doe",
-            addressPlaceholder: "Enter your full address...",
 
+            // Errors
             errRequired: "This field is required",
             errEmail: "Invalid email format",
-            errPhone: "Valid phone number is required",
+            errPhone: "Valid phone number is required (9-15 digits)",
 
+            // --- STAFF DASHBOARD PAGE ---
             staffTitle: "Staff Dashboard",
-            liveMonitor: "Patient Information",
-            realtime: "Real-time",
-            watchProgress: "Watch patient registration progress live.",
-            currentStatus: "Current Status:",
-            statusSubmitted: "Data Submitted",
-            statusFilling: "Actively Filling...",
-            statusInactive: "Patient Inactive",
-            statusWaiting: "Waiting for connection...",
-            contactInfo: "Contact Info",
-            emergencyContact: "Emergency Contact",
-            contactName: "Contact Name",
-            relationship: "Relationship",
-            notProvided: "Not provided",
-            waiting: "Waiting...",
-
-            // 💡 คำแปลใหม่สำหรับระบบ Dashboard หลายคน
-            activePatients: "Active Patients",
-            online: "Online",
-            selectPatient: "Select a patient to view their real-time progress.",
+            liveMonitor: "Live Monitor",
+            autoCleanup: "Auto-cleanup in 10 minutes",
             noActivePatients: "No active patients right now",
-            phoneNotProvided: "Phone not provided",
+            waitingSubmissions: "Waiting for new form submissions...",
+            selectPatient: "Select a patient to view details",
+            patientDetails: "Patient Detail",
             backToList: "Back to List",
-            patientDetails: "Patient Details",
-            patientId: "ID"
+
+            // Status Tags
+            statusActive: "ACTIVE",
+            statusInactive: "INACTIVE",
+            statusSubmitted: "SUBMITTED",
+            statusFilling: "Filling form...",
+            statusWaiting: "Waiting for data..."
         }
     },
     th: {
         translation: {
-            header: "ลงทะเบียนผู้ป่วยใหม่",
-            subtitle: "กรุณากรอกข้อมูลส่วนตัวเพื่อใช้ในการเข้ารับการรักษา",
+            // --- MAIN PAGE (Home) ---
+            mainTitle: "ระบบจัดการข้อมูลผู้ป่วยเรียลไทม์",
+            mainSubtitle: "เลือกโหมดการใช้งานเพื่อเริ่มต้น",
+            patientModeBtn: "โปรแกรมจำลองผู้ป่วย",
+            patientModeDesc: "สร้างและจำลองการกรอกข้อมูลของผู้ป่วย",
+            staffModeBtn: "ระบบเจ้าหน้าที่",
+            staffModeDesc: "ติดตามข้อมูลผู้ป่วยแบบเรียลไทม์",
+
+            // --- NAVIGATION & COMMON ---
+            backToMenu: "กลับหน้าหลัก",
+            loading: "กำลังโหลด...",
+            lastUpdated: "อัปเดตล่าสุด",
+            justNow: "เมื่อสักครู่",
+            minsAgo: "นาทีที่แล้ว",
+
+            // --- PATIENT SIMULATOR PAGE ---
+            simulatorTitle: "โปรแกรมจำลองผู้ป่วย",
+            simulatorDesc: "สร้างบัตรผู้ป่วยจำลองเพื่อทดสอบระบบมอนิเตอร์แบบเรียลไทม์",
+            createUserBtn: "สร้างบัตรผู้ป่วยใหม่",
+            clearAllBtn: "ลบผู้ป่วยทั้งหมด",
+            noUsersTitle: "ไม่มีผู้ใช้ที่ใช้งานอยู่",
+            noUsersDesc: "คลิกปุ่มด้านบนเพื่อสร้างบัตรผู้ป่วยใหม่",
+            fillForm: "กรอกฟอร์ม",
+            editForm: "แก้ไขข้อมูล",
+            patientId: "รหัส",
+            deleteUser: "ลบผู้ใช้คนนี้",
+
+            // --- PATIENT FORM PAGE ---
+            formHeader: "ลงทะเบียนผู้ป่วยใหม่",
+            formSubtitle: "กรุณากรอกข้อมูลส่วนตัวเพื่อใช้ในการเข้ารับการรักษา",
             personalInfo: "ข้อมูลส่วนตัว",
+            contactInfo: "ข้อมูลการติดต่อ",
+            emergencyContact: "ผู้ติดต่อฉุกเฉิน",
+            addressSection: "ที่อยู่ปัจจุบัน",
+
+            // Input Labels & Placeholders
             firstName: "ชื่อจริง",
+            firstNamePlace: "เช่น สมชาย",
             middleName: "ชื่อกลาง",
+            middleNamePlace: "ไม่บังคับ",
             lastName: "นามสกุล",
+            lastNamePlace: "เช่น ใจดี",
             dob: "วันเกิด",
             gender: "เพศ",
             phone: "เบอร์โทรศัพท์",
             email: "อีเมล",
             nationality: "สัญชาติ",
             language: "ภาษาที่สะดวกสื่อสาร",
-            address: "ที่อยู่ปัจจุบัน",
-            submit: "ยืนยันข้อมูล",
-            optional: "(ไม่บังคับ)",
+            religion: "ศาสนา",
+            contactName: "ชื่อผู้ติดต่อ",
+            relationship: "ความสัมพันธ์",
+            address: "รายละเอียดที่อยู่",
+            addressPlace: "บ้านเลขที่, ถนน, ตำบล, อำเภอ, จังหวัด...",
+
+            // Select Options
             selectGender: "เลือกเพศ",
+            male: "ชาย",
+            female: "หญิง",
             selectDate: "เลือกวันที่",
-            searchCountry: "ค้นหาประเทศ...",
-            searchLang: "เลือกภาษา...",
+            selectReligion: "เลือกศาสนา",
+            buddhism: "ศาสนาพุทธ",
+            christianity: "ศาสนาคริสต์",
+            islam: "ศาสนาอิสลาม",
+            hinduism: "ศาสนาฮินดู",
+            sikhism: "ศาสนาซิกข์",
+            others: "อื่นๆ",
+
+            // Form Actions & Modals
+            submitBtn: "ยืนยันข้อมูล",
             confirmTitle: "ยืนยันข้อมูล?",
             confirmText: "กรุณาตรวจสอบข้อมูลให้ถูกต้องก่อนกดยืนยัน",
             btnConfirm: "ยืนยันการส่ง",
             btnCancel: "ยกเลิก",
             successTitle: "สำเร็จ!",
             successText: "ข้อมูลของคุณถูกส่งเข้าระบบแล้ว",
-            completedTitle: "บันทึกข้อมูลเรียบร้อย",
+            completedTitle: "บันทึกเรียบร้อย",
             completedText: "เจ้าหน้าที่ได้รับข้อมูลของคุณแล้ว",
-            male: "ชาย",
-            female: "หญิง",
-            firstNamePlaceholder: "ชื่อ",
-            lastNamePlaceholder: "นามสกุล",
-            addressPlaceholder: "บ้านเลขที่, ถนน, ตำบล, อำเภอ, จังหวัด...",
 
+            // Errors
             errRequired: "กรุณากรอกข้อมูลช่องนี้",
             errEmail: "รูปแบบอีเมลไม่ถูกต้อง",
-            errPhone: "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง",
+            errPhone: "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (9-15 หลัก)",
 
+            // --- STAFF DASHBOARD PAGE ---
             staffTitle: "ระบบเจ้าหน้าที่",
-            liveMonitor: "ข้อมูลของผู้ป่วย",
-            realtime: "เรียลไทม์",
-            watchProgress: "ดูความคืบหน้าการกรอกข้อมูลของผู้ป่วย",
-            currentStatus: "สถานะปัจจุบัน:",
-            statusSubmitted: "ส่งข้อมูลแล้ว",
-            statusFilling: "กำลังพิมพ์...",
-            statusInactive: "ผู้ป่วยหยุดพิมพ์",
-            statusWaiting: "รอการเชื่อมต่อ...",
-            contactInfo: "ข้อมูลการติดต่อ",
-            emergencyContact: "ติดต่อฉุกเฉิน",
-            contactName: "ชื่อผู้ติดต่อ",
-            relationship: "ความสัมพันธ์",
-            notProvided: "ไม่ได้ระบุ",
-            waiting: "รอข้อมูล...",
-
-            // 💡 คำแปลใหม่สำหรับระบบ Dashboard หลายคน
-            activePatients: "ผู้ป่วยที่กำลังออนไลน์",
-            online: "ออนไลน์",
-            selectPatient: "เลือกผู้ป่วยเพื่อดูความคืบหน้าแบบเรียลไทม์",
+            liveMonitor: "จอมอนิเตอร์เรียลไทม์",
+            autoCleanup: "ระบบล้างข้อมูลอัตโนมัติใน 10 นาที",
             noActivePatients: "ไม่มีผู้ป่วยออนไลน์ในขณะนี้",
-            phoneNotProvided: "ไม่ได้ระบุเบอร์โทร",
-            backToList: "กลับไปหน้ารวม",
+            waitingSubmissions: "กำลังรอการส่งข้อมูลใหม่...",
+            selectPatient: "เลือกผู้ป่วยเพื่อดูรายละเอียด",
             patientDetails: "รายละเอียดผู้ป่วย",
-            patientId: "รหัส"
+            backToList: "กลับไปหน้ารวม",
+
+            // Status Tags
+            statusActive: "กำลังกรอก",
+            statusInactive: "หยุดนิ่ง",
+            statusSubmitted: "ส่งแล้ว",
+            statusFilling: "กำลังพิมพ์ข้อมูล...",
+            statusWaiting: "รอข้อมูล..."
         }
     }
 };

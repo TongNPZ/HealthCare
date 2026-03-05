@@ -1,8 +1,7 @@
-// src/lib/pusher.ts
 import PusherServer from 'pusher';
 import PusherClient from 'pusher-js';
 
-// 1. ตั้งค่า Pusher สำหรับฝั่ง Server (ใช้ใน API Route เพื่อ 'ส่ง' ข้อมูล)
+// Configure Pusher for the server-side (used in API routes to broadcast data)
 export const pusherServer = new PusherServer({
     appId: process.env.PUSHER_APP_ID!,
     key: process.env.NEXT_PUBLIC_PUSHER_KEY!,
@@ -11,7 +10,7 @@ export const pusherServer = new PusherServer({
     useTLS: true,
 });
 
-// 2. ตั้งค่า Pusher สำหรับฝั่ง Client (ใช้ใน React Components เพื่อ 'รับ' ข้อมูลแบบ Real-time)
+// Configure Pusher for the client-side (used in React components to receive real-time updates)
 export const pusherClient =
     typeof window !== 'undefined'
         ? new PusherClient(process.env.NEXT_PUBLIC_PUSHER_KEY!, {

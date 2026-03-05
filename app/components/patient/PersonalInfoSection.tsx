@@ -1,6 +1,6 @@
 import React from "react";
 import { FormSectionProps, SelectOption } from "@/lib/types";
-import { InputField, TextAreaField } from "../ui/InputField";
+import { InputField } from "../ui/InputField";
 import { SelectField } from "../ui/SelectField";
 import { DatePickerField } from "../ui/DatePickerField";
 
@@ -13,8 +13,11 @@ interface Props extends FormSectionProps {
 export const PersonalInfoSection = ({ register, control, errors, t, nationalityOptions, religionOptions, languageOptions }: Props) => {
     return (
         <div className="mb-8">
+            {/* Section Header */}
             <h2 className="text-xl font-bold text-slate-800 mb-6 border-b pb-2">Personal Information</h2>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                {/* Name Fields */}
                 <InputField
                     label={t("firstName")}
                     registration={register("firstName")}
@@ -36,6 +39,7 @@ export const PersonalInfoSection = ({ register, control, errors, t, nationalityO
                     placeholder={t("lastNamePlaceholder")}
                 />
 
+                {/* Demographics Fields */}
                 <DatePickerField
                     name="dateOfBirth"
                     control={control}

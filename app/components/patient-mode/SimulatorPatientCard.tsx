@@ -1,8 +1,8 @@
-// src/app/components/patient-mode/PatientCard.tsx
+// src/app/components/patient-mode/SimulatorPatientCard.tsx
 import { X, FileEdit } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-interface PatientCardProps {
+interface SimulatorPatientCardProps {
     id: string;
     index: number;
     totalSessions: number;
@@ -10,7 +10,8 @@ interface PatientCardProps {
     router: ReturnType<typeof useRouter>;
 }
 
-export const PatientCard = ({ id, index, totalSessions, removeSingleUser, router }: PatientCardProps) => {
+// Fixed the type from SimulatorPatientCard to SimulatorPatientCardProps
+export const SimulatorPatientCard = ({ id, index, totalSessions, removeSingleUser, router }: SimulatorPatientCardProps) => {
     const isSubmitted = typeof window !== 'undefined' ? !!localStorage.getItem(`submitted_${id}`) : false;
 
     return (
@@ -42,7 +43,7 @@ export const PatientCard = ({ id, index, totalSessions, removeSingleUser, router
                 )}
             </div>
             <button
-                // 💡 อัปเดต Path ให้ชี้ไปที่ /patient-form แทน /patient
+                // Route to the patient form instead of /patient
                 onClick={() => router.push(`/patient-form?id=${id}`)}
                 className={`w-full flex items-center justify-center gap-2 py-3 font-bold rounded-xl transition-all border
           ${isSubmitted

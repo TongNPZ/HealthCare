@@ -1,24 +1,11 @@
 // src/hooks/useStaffDashboard.ts
 import { useState, useEffect } from "react";
 import { pusherClient } from "@/lib/pusher";
-import { PatientFormData } from "@/lib/schema";
+import { PatientSession, PusherUpdatePayload } from "@/lib/types";
 
-export interface PatientSession {
-    patientId: string;
-    formData: PatientFormData;
-    status: string;
-    lastUpdated: number;
-}
-
-export interface PusherUpdatePayload {
-    patientId: string;
-    formData: PatientFormData;
-    status: string;
-}
-
-const SUBMITTED_RETENTION = 10 * 60 * 1000; // 10 นาทีหลังจากส่งฟอร์ม
-const ACTIVE_RETENTION = 60 * 60 * 1000;    // 1 ชั่วโมง (กันคอมดับ/เน็ตหลุด)
-const WAITING_RETENTION = 5 * 60 * 1000;    // 5 นาที สำหรับคนที่เพิ่งกด Create แต่ยังไม่กรอก
+const SUBMITTED_RETENTION = 10 * 60 * 1000; // 10 minutes after form submission
+const ACTIVE_RETENTION = 60 * 60 * 1000;    // 1 hour (fallback for computer sleep/disconnect)
+const WAITING_RETENTION = 5 * 60 * 1000;    // 5 minutes for newly created but unfilled forms
 
 export const useStaffDashboard = () => {
     const [patients, setPatients] = useState<Record<string, PatientSession>>({});
@@ -26,46 +13,51 @@ export const useStaffDashboard = () => {
     const [currentTime, setCurrentTime] = useState<number>(0);
     const [isMounted, setIsMounted] = useState(false);
 
-    // Initial Load จาก LocalStorage
+    // Initial load from LocalStorage to persist data upon refresh
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsMounted(true);
             setCurrentTime(Date.now());
             const saved = localStorage.getItem("staff_dashboard_history");
+
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
                     const now = Date.now();
                     const valid: Record<string, PatientSession> = {};
+
                     for (const k in parsed) {
                         const p = parsed[k];
                         const retentionLimit = p.status === "submitted" ? SUBMITTED_RETENTION : (p.status === "waiting" ? WAITING_RETENTION : ACTIVE_RETENTION);
-                        if (now - p.lastUpdated < retentionLimit) valid[k] = p;
+                        if (now - p.lastUpdated < retentionLimit) {
+                            valid[k] = p;
+                        }
                     }
                     setPatients(valid);
-                } catch (e) { console.error(e); }
+                } catch (e) {
+                    console.error(e);
+                }
             }
         }, 0);
+
         return () => clearTimeout(timer);
     }, []);
 
-    // ตัวนับเวลาสำหรับ UI (อัปเดตทุก 10 วิ)
+    // Timer for UI updates (triggers re-renders every 10 seconds for "time ago" logic)
     useEffect(() => {
         if (!isMounted) return;
         const timeInterval = setInterval(() => setCurrentTime(Date.now()), 10000);
         return () => clearInterval(timeInterval);
     }, [isMounted]);
 
-    // รับข้อมูลจาก Pusher และล้างข้อมูลขยะ
+    // Handle incoming data from Pusher and perform periodic memory cleanup
     useEffect(() => {
         if (!isMounted || !pusherClient) return;
 
         const channel = pusherClient.subscribe("patient-channel");
 
-        // ในไฟล์ hooks/useStaffDashboard.ts
-
         channel.bind("form-update", (data: PusherUpdatePayload) => {
-            // 💡 1. ดึงเวลามาแค่ครั้งเดียว เพื่อให้เวลาของบอร์ดกับการ์ดตรงกันเป๊ะระดับมิลลิวินาที
+            // Fetch time once to ensure dashboard and card times match perfectly down to the millisecond
             const now = Date.now();
 
             setCurrentTime(now);
@@ -84,13 +76,13 @@ export const useStaffDashboard = () => {
                         patientId: data.patientId,
                         formData: data.formData,
                         status: data.status,
-                        lastUpdated: now // 💡 2. ใช้ตัวแปร now ตัวเดียวกัน
+                        lastUpdated: now
                     }
                 };
             });
         });
 
-        // Loop ล้างข้อมูลขยะทุก 1 นาที
+        // Cleanup loop running every 1 minute to remove inactive sessions
         const cleanupInterval = setInterval(() => {
             setPatients(prev => {
                 const now = Date.now();
@@ -117,7 +109,7 @@ export const useStaffDashboard = () => {
         };
     }, [isMounted, selectedId]);
 
-    // เซฟประวัติลง LocalStorage
+    // Sync state with LocalStorage for persistence
     useEffect(() => {
         if (isMounted && Object.keys(patients).length > 0) {
             localStorage.setItem("staff_dashboard_history", JSON.stringify(patients));
@@ -127,6 +119,7 @@ export const useStaffDashboard = () => {
     }, [patients, isMounted]);
 
     return {
+        // Sort patients by most recently updated
         patientList: Object.values(patients).sort((a, b) => b.lastUpdated - a.lastUpdated),
         activePatient: selectedId ? patients[selectedId] : null,
         selectedId,

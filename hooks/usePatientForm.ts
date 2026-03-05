@@ -1,4 +1,3 @@
-// hooks/usePatientForm.ts
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,12 +7,12 @@ import { useTranslation } from "react-i18next";
 import Swal from "sweetalert2";
 import ISO6391 from 'iso-639-1';
 
-// 💡 1. Import ไลบรารีประเทศและไฟล์ภาษาที่ถูกต้อง
+// Import country libraries and corresponding locales
 import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
 import thLocale from "i18n-iso-countries/langs/th.json";
 
-// 💡 2. ลงทะเบียนภาษาให้ระบบรู้จักชื่อประเทศ (ขาดบรรทัดนี้ไปทำให้ตัวเลือกหาย)
+// Register locales so the system recognizes country names
 countries.registerLocale(enLocale);
 countries.registerLocale(thLocale);
 
@@ -38,14 +37,14 @@ export const usePatientForm = () => {
   const { watch, formState: { errors } } = formMethods;
   const allFields = watch();
 
-  // 💡 สร้าง Ref เพื่อเก็บข้อมูลล่าสุด ป้องกันการส่ง abandoned ผิดจังหวะ
+  // Use Ref to store latest data preventing wrong abandoned state
   const allFieldsRef = useRef(allFields);
   const isSubmittedRef = useRef(isSubmitted);
 
   useEffect(() => { allFieldsRef.current = allFields; }, [allFields]);
   useEffect(() => { isSubmittedRef.current = isSubmitted; }, [isSubmitted]);
 
-  // 1. จัดการ ID และโหลดข้อมูลเก่า
+  // 1. Manage ID and load existing data
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsMounted(true);
@@ -53,21 +52,21 @@ export const usePatientForm = () => {
       const currentId = urlId || "USER-" + Math.random().toString(36).substring(2, 6).toUpperCase();
       setPatientId(currentId);
 
-      // 💡 โหลดข้อมูลเก่ามาใส่ฟอร์มถ้าเคยกรอกไว้แล้ว
+      // Load previously saved form data if available
       const savedFormData = localStorage.getItem(`formData_${currentId}`);
       if (savedFormData) {
         try {
           const parsedData = JSON.parse(savedFormData);
-          formMethods.reset(parsedData); // นำข้อมูลเดิมไปยัดใส่ช่อง Input อัตโนมัติ
+          formMethods.reset(parsedData); // Auto-fill inputs with saved data
         } catch (e) {
           console.error("Failed to parse saved form data", e);
         }
       }
     }, 0);
     return () => clearTimeout(timer);
-  }, [searchParams, formMethods]); // 💡 อย่าลืมเพิ่ม formMethods เข้ามาใน Dependency Array
+  }, [searchParams, formMethods]); // Include formMethods in dependency array
 
-  // 2. Pusher Sync (ส่งข้อมูลปกติตอนกำลังพิมพ์)
+  // 2. Pusher Sync (send data normally while typing)
   useEffect(() => {
     if (isMounted && !isSubmitted && patientId) {
       const sync = async () => {
@@ -84,12 +83,12 @@ export const usePatientForm = () => {
   useEffect(() => {
     const notifyAbandonment = () => {
       if (!isSubmittedRef.current && patientId) {
-        // เช็กก่อนว่าเคยส่งข้อมูลฟอร์มนี้ไปแล้วหรือยัง
+        // Check if this form was previously submitted
         const wasSubmitted = !!localStorage.getItem(`submitted_${patientId}`);
 
         if (wasSubmitted) {
-          // 💡 กรณีเคยกด Submit ไปแล้ว (เข้าโหมด Edit แล้วเปลี่ยนใจกด Back)
-          // ให้ดึงข้อมูลเก่าที่เคยเซฟไว้ ส่งกลับไปฟื้นคืนชีพในจอมอนิเตอร์
+          // Case: Previously submitted (entered Edit mode and pressed Back) 
+          // Retrieve saved data to restore on monitor
           const savedData = localStorage.getItem(`formData_${patientId}`);
           const originalData = savedData ? JSON.parse(savedData) : allFieldsRef.current;
 
@@ -101,8 +100,8 @@ export const usePatientForm = () => {
           }).catch(e => console.error(e));
 
         } else {
-          // 💡 กรณีสร้างการ์ดใหม่แต่เปลี่ยนใจไม่กรอก (กด Back ออกไปเลย)
-          // 1. ลบ ID ตัวเองออกจากหน้า Patient Simulator
+          // Case: Created new card but exited without filling
+          // 1. Remove own ID from Patient Simulator page
           const savedSessions = localStorage.getItem("mock_patient_sessions");
           if (savedSessions) {
             try {
@@ -113,10 +112,12 @@ export const usePatientForm = () => {
               } else {
                 localStorage.setItem("mock_patient_sessions", JSON.stringify(updatedSessions));
               }
-            } catch (e) { console.error("Error updating sessions", e); }
+            } catch (e) {
+              console.error("Error updating sessions", e);
+            }
           }
 
-          // 2. เตะออกจากหน้า Staff Monitor
+          // 2. Kick out of Staff Monitor
           fetch("/api/patient-update", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -127,10 +128,10 @@ export const usePatientForm = () => {
       }
     };
 
-    // ดักจับตอนปิดแท็บ หรือรีเฟรชหน้า
+    // Handle tab close or page refresh
     window.addEventListener("beforeunload", notifyAbandonment);
 
-    // ดักจับตอนกดย้อนกลับ (Unmount component)
+    // Handle back navigation (Component unmount)
     return () => {
       window.removeEventListener("beforeunload", notifyAbandonment);
       notifyAbandonment();
@@ -152,7 +153,6 @@ export const usePatientForm = () => {
       setIsSubmitted(true);
 
       localStorage.setItem(`submitted_${patientId}`, Date.now().toString());
-
       localStorage.setItem(`formData_${patientId}`, JSON.stringify(data));
 
       await fetch("/api/patient-update", {

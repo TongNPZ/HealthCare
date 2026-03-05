@@ -1,8 +1,6 @@
-// src/app/staff/page.tsx
 "use client";
 
 import { useStaffDashboard } from "@/hooks/useStaffDashboard";
-// 💡 ใช้ @/app/ เพื่อป้องกันปัญหา Import ไม่เจอ
 import { PatientList } from "../components/staff/PatientList";
 import { PatientDetailView } from "@/app/components/staff/DetailView";
 import { useTranslation } from "react-i18next";
@@ -12,6 +10,7 @@ export default function StaffPage() {
   const { patientList, activePatient, selectedId, setSelectedId, currentTime, isMounted } = useStaffDashboard();
   const { t } = useTranslation();
 
+  // Prevent hydration errors and ensure timer is initialized
   if (!isMounted || currentTime === 0) return null;
 
   return (
@@ -19,6 +18,7 @@ export default function StaffPage() {
       <div className="max-w-6xl mx-auto">
 
         {!selectedId ? (
+          // Main Dashboard View
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b border-slate-200 pb-6 gap-4">
               <div>
@@ -35,12 +35,11 @@ export default function StaffPage() {
             <PatientList
               patients={patientList}
               currentTime={currentTime}
-              // 💡 แก้ตรงนี้! ส่ง Arrow function เข้าไปเพื่อให้ Type ตรงกันเป๊ะๆ
               onSelectPatient={(id) => setSelectedId(id)}
             />
           </div>
         ) : (
-
+          // Detailed View
           <div className="bg-white rounded-[2.5rem] p-6 md:p-12 shadow-2xl border border-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <button
               onClick={() => setSelectedId(null)}

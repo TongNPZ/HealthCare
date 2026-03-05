@@ -1,11 +1,9 @@
-// src/app/components/staff/PatientList.tsx
 import React from "react";
 import { PatientCard } from "./PatientCard";
-// 💡 ดึง Type มาจากไฟล์กลาง
 import { PatientListProps } from "@/lib/types";
 
-// 💡 มีการ export const PatientList ตรงนี้ ซึ่งหน้า staff/page.tsx จะดึงไปใช้ครับ
 export const PatientList = ({ patients, currentTime, onSelectPatient }: PatientListProps) => {
+    // Empty state handling
     if (patients.length === 0) {
         return (
             <div className="text-center py-20 bg-white rounded-[2rem] border border-slate-200 shadow-sm">

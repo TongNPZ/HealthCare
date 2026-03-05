@@ -1,12 +1,12 @@
-// app/components/ui/FormFields.tsx
 import React from "react";
 import { StylesConfig } from "react-select";
 import { Controller } from "react-hook-form";
 import Select, { SingleValue, MultiValue } from "react-select";
 import DatePicker from "react-datepicker";
 import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
-// 💡 Import Types ทั้งหมดจาก lib/types ตามกฎที่เราตกลงกันไว้
+// Import all required types from the centralized types definitions
 import {
   SelectOption,
   InputFieldProps,
@@ -17,9 +17,10 @@ import {
 } from "../../../lib/types";
 
 // ==========================================
-// Base Form Fields (จากโค้ดเดิม)
+// Base Form Fields
 // ==========================================
 
+// Shared custom styling for react-select components to maintain consistent UI
 export const getCustomSelectStyles = (hasError: boolean): StylesConfig<SelectOption, boolean> => ({
   control: (base, state) => ({
     ...base,
@@ -48,6 +49,7 @@ export const getCustomSelectStyles = (hasError: boolean): StylesConfig<SelectOpt
   input: (base) => ({ ...base, color: "#1e293b" }),
 });
 
+// Standard text input field
 export const InputField = ({ label, required = true, type = "text", error, registration, placeholder, icon }: InputFieldProps) => (
   <div className="flex flex-col gap-1.5 mb-5">
     <label className="text-sm font-semibold text-slate-700 ml-1">
@@ -69,6 +71,7 @@ export const InputField = ({ label, required = true, type = "text", error, regis
   </div>
 );
 
+// Standard multiline text area field
 export const TextAreaField = ({ label, required = true, error, registration, placeholder, icon }: TextAreaFieldProps) => (
   <div className="flex flex-col gap-1.5 mb-5">
     <label className="text-sm font-semibold text-slate-700 ml-1">
@@ -91,7 +94,7 @@ export const TextAreaField = ({ label, required = true, error, registration, pla
 );
 
 // ==========================================
-// 1. SelectField (สำหรับ Dropdown และ Multi-select)
+// 1. SelectField (For Dropdown and Multi-select)
 // ==========================================
 export const SelectField = ({
   name, control, label, options, error, required = true, isMulti = false, isClearable = false, placeholder
@@ -112,16 +115,17 @@ export const SelectField = ({
           options={options}
           placeholder={placeholder || "Select..."}
           styles={getCustomSelectStyles(!!error)}
+          // Safely map form values back to react-select options
           value={
             isMulti
-              ? options.filter(opt => field.value?.includes(opt.value))
+              ? options.filter(opt => (field.value as string[])?.includes(opt.value))
               : options.find(opt => opt.value === field.value) || null
           }
           onChange={(val) => {
             if (isMulti) {
-              field.onChange((val as MultiValue<{ value: string; label: string }>).map(item => item.value));
+              field.onChange((val as MultiValue<SelectOption>).map(item => item.value));
             } else {
-              field.onChange((val as SingleValue<{ value: string; label: string }>)?.value ?? "");
+              field.onChange((val as SingleValue<SelectOption>)?.value ?? "");
             }
           }}
         />
@@ -132,7 +136,7 @@ export const SelectField = ({
 );
 
 // ==========================================
-// 2. DatePickerField (สำหรับเลือกวันที่)
+// 2. DatePickerField (For selecting dates)
 // ==========================================
 export const DatePickerField = ({ name, control, label, error, required = true, placeholder }: DatePickerFieldProps) => (
   <div className="flex flex-col gap-1.5 mb-5">
@@ -144,7 +148,7 @@ export const DatePickerField = ({ name, control, label, error, required = true, 
       control={control}
       render={({ field }) => (
         <DatePicker
-          // 💡 ใส่ as string ตรง field.value
+          // Cast field.value as string to fulfill Date constructor requirements
           selected={field.value ? new Date(field.value as string) : null}
           onChange={(date: Date | null) => field.onChange(date ? date.toISOString().split('T')[0] : "")}
           dateFormat="dd/MM/yyyy"
@@ -165,7 +169,7 @@ export const DatePickerField = ({ name, control, label, error, required = true, 
 );
 
 // ==========================================
-// 3. PhoneInputField (สำหรับกรอกเบอร์โทร)
+// 3. PhoneInputField (For phone number inputs)
 // ==========================================
 export const PhoneInputField = ({ name, control, label, error, required = true }: PhoneInputFieldProps) => (
   <div className="flex flex-col gap-1.5 mb-5">
@@ -178,7 +182,7 @@ export const PhoneInputField = ({ name, control, label, error, required = true }
       render={({ field }) => (
         <PhoneInput
           country={"th"}
-          // 💡 ใส่ as string ตรง field.value
+          // Cast field.value as string to fulfill PhoneInput value requirements
           value={field.value as string}
           onChange={field.onChange}
           inputClass={`!w-full !h-11 !text-slate-800 !rounded-xl transition-all outline-none

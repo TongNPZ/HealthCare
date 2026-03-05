@@ -21,7 +21,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* 🟢 ปุ่มไปหน้าสร้าง User จำลอง */}
+          {/* ปุ่มไปหน้าสร้าง User จำลอง */}
           <div className="bg-blue-50/50 p-8 rounded-3xl border border-blue-100 hover:border-blue-300 hover:shadow-lg transition-all group">
             <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <Users className="w-7 h-7" />
@@ -41,7 +41,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* 🟣 ปุ่มไปหน้า Staff Dashboard */}
+          {/*  ปุ่มไปหน้า Staff Dashboard */}
           <div className="bg-indigo-50/50 p-8 rounded-3xl border border-indigo-100 hover:border-indigo-300 hover:shadow-lg transition-all group">
             <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <Activity className="w-7 h-7" />

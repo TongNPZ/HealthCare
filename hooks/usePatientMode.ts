@@ -1,4 +1,3 @@
-// src/hooks/usePatientMode.ts
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
@@ -27,7 +26,7 @@ export const usePatientMode = () => {
         setSessions(updatedSessions);
         localStorage.setItem("mock_patient_sessions", JSON.stringify(updatedSessions));
 
-        // 💡 1. จำเวลา "ตอนสร้างการ์ด" ไว้ เพื่อให้จับเวลาคนที่ยังไม่ได้กรอกฟอร์มได้
+        // Store creation time to track users who haven't filled out the form yet
         localStorage.setItem(`created_${newId}`, Date.now().toString());
 
         fetch("/api/patient-update", {
@@ -60,7 +59,7 @@ export const usePatientMode = () => {
             localStorage.setItem("mock_patient_sessions", JSON.stringify(updatedSessions));
         }
 
-        // 💡 2. ล้างข้อมูลทุกอย่างที่เกี่ยวข้องทิ้งให้เกลี้ยง
+        // Clear all related data completely
         localStorage.removeItem(`submitted_${idToRemove}`);
         localStorage.removeItem(`created_${idToRemove}`);
         localStorage.removeItem(`formData_${idToRemove}`);
@@ -72,12 +71,12 @@ export const usePatientMode = () => {
         }).catch((e) => console.error(e));
     };
 
-    // 💡 ระบบทำลายตัวเองที่ทำงานสมบูรณ์แบบ ลิงก์กับหน้า Monitor
+    // Self-destruct system linked to the Monitor page
     useEffect(() => {
         if (!isMounted) return;
 
-        // ⏳ เวลาที่ต้องการให้หมดอายุ (10 นาที = 10 * 60 * 1000)
-        // 👉 ทริค: ถ้าอยากเทสให้เห็นผลไวๆ เปลี่ยนเป็น 10 * 1000 ก่อนได้ครับ
+        // Retention time before expiration (10 minutes = 10 * 60 * 1000)
+        // Tip: For quick testing, change to 10 * 1000
         const RETENTION_TIME = 10 * 60 * 1000;
 
         const cleanupExpiredSessions = () => {
@@ -86,16 +85,16 @@ export const usePatientMode = () => {
                 const now = Date.now();
 
                 const validSessions = prev.filter(id => {
-                    // ดึงเวลาที่ส่งฟอร์ม และ เวลาที่สร้างการ์ด
+                    // Retrieve submission and creation times
                     const submittedAt = localStorage.getItem(`submitted_${id}`);
                     const createdAt = localStorage.getItem(`created_${id}`);
 
                     let shouldRemove = false;
 
-                    // 💡 3. ตรวจสอบการหมดเวลา
+                    // Check for expiration
                     if (submittedAt) {
                         if (submittedAt === "true") {
-                            shouldRemove = true; // ดักจับบั๊กเก่า
+                            shouldRemove = true; // Handle legacy boolean bug
                         } else {
                             const timePassed = now - parseInt(submittedAt);
                             if (timePassed >= RETENTION_TIME) shouldRemove = true;
@@ -104,17 +103,17 @@ export const usePatientMode = () => {
                         const timePassed = now - parseInt(createdAt);
                         if (timePassed >= RETENTION_TIME) shouldRemove = true;
                     } else {
-                        // 💡 4. ถ้าไม่มีทั้ง 2 เวลา แสดงว่าเป็นการ์ดขยะ ให้ลบทิ้งทันที!
+                        // If neither time exists, it's a ghost card, remove immediately
                         shouldRemove = true;
                     }
 
                     if (shouldRemove) {
-                        // ลบข้อมูลขยะออกจากเครื่อง
+                        // Remove junk data from local storage
                         localStorage.removeItem(`submitted_${id}`);
                         localStorage.removeItem(`created_${id}`);
                         localStorage.removeItem(`formData_${id}`);
 
-                        // 💡 5. สำคัญมาก: ยิง API ไปสั่งให้ฝั่ง Monitor ลบการ์ดนี้ด้วย
+                        // Crucial: Send API request to instruct Monitor to delete this card
                         fetch("/api/patient-update", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -122,10 +121,10 @@ export const usePatientMode = () => {
                         }).catch(console.error);
 
                         isChanged = true;
-                        return false; // เตะออกจากรายการหน้าจอ
+                        return false; // Remove from UI list
                     }
 
-                    return true; // เก็บไว้แสดงผลต่อ
+                    return true; // Keep displaying
                 });
 
                 if (isChanged) {
@@ -141,7 +140,7 @@ export const usePatientMode = () => {
         };
 
         cleanupExpiredSessions();
-        const interval = setInterval(cleanupExpiredSessions, 5000); // เช็กทุก 5 วิ
+        const interval = setInterval(cleanupExpiredSessions, 5000); // Check every 5 seconds
         return () => clearInterval(interval);
     }, [isMounted]);
 

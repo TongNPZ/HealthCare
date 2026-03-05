@@ -1,7 +1,6 @@
 import React from "react";
 import { InputFieldProps, TextAreaFieldProps } from "@/lib/types";
 import "react-phone-input-2/lib/style.css";
-
 export const InputField = ({ label, required = true, type = "text", error, registration, placeholder, icon }: InputFieldProps) => (
     <div className="flex flex-col gap-1.5 mb-5">
         <label className="text-sm font-semibold text-slate-700 ml-1">

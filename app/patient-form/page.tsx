@@ -4,7 +4,7 @@
 import { Suspense } from "react";
 import { usePatientForm } from "@/hooks/usePatientForm";
 
-// 💡 นำเข้า Section ต่างๆ ที่เราหั่นเอาไว้
+// Import separated form sections
 import { PersonalInfoSection } from "../components/patient/PersonalInfoSection";
 import { ContactInfoSection } from "../components/patient/ContactInfoSection";
 import { EmergencyContactSection } from "../components/patient/EmergencyContactSection";
@@ -17,7 +17,7 @@ function PatientFormContent() {
 
   const { register, handleSubmit, control, formState: { errors } } = formMethods;
 
-  // ป้องกัน Hydration Error
+  // Prevent hydration errors by ensuring the component is mounted on the client
   if (!isMounted) return null;
 
   return (
@@ -25,7 +25,7 @@ function PatientFormContent() {
       <main className="flex-1 p-4 md:p-8 flex flex-col items-center">
         <div className="w-full max-w-4xl">
 
-          {/* ปุ่ม Back */}
+          {/* Back button */}
           <button onClick={() => router.push("/patient-simulator")} className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-600 mb-6 transition-colors bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
             Back to User List
@@ -33,7 +33,7 @@ function PatientFormContent() {
 
           <div className="bg-white rounded-[2rem] shadow-xl shadow-blue-900/5 p-6 md:p-12 border border-slate-100">
 
-            {/* สถานะ: เมื่อส่งข้อมูลสำเร็จ */}
+            {/* Status: Displayed when form is successfully submitted */}
             {isSubmitted ? (
               <div className="text-center py-20 bg-blue-50 rounded-3xl border-2 border-dashed border-blue-200">
                 <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/30">
@@ -47,10 +47,10 @@ function PatientFormContent() {
               </div>
             ) : (
 
-              /* สถานะ: ฟอร์มกรอกข้อมูล */
+              /* Status: Form input fields */
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
 
-                {/* 💡 1. ส่วนข้อมูลส่วนตัว */}
+                {/* Personal Information Section */}
                 <PersonalInfoSection
                   register={register} control={control} errors={errors} t={t}
                   nationalityOptions={nationalityOptions}
@@ -58,13 +58,13 @@ function PatientFormContent() {
                   languageOptions={languageOptions}
                 />
 
-                {/* 💡 2. ส่วนข้อมูลการติดต่อ */}
+                {/* Contact Information Section */}
                 <ContactInfoSection register={register} control={control} errors={errors} t={t} />
 
-                {/* 💡 3. ส่วนข้อมูลติดต่อฉุกเฉิน */}
+                {/* Emergency Contact Section */}
                 <EmergencyContactSection register={register} control={control} errors={errors} t={t} />
 
-                {/* ปุ่ม Submit */}
+                {/* Submit Button */}
                 <div className="pt-6 flex justify-center border-t border-slate-100 mt-4">
                   <button type="submit" className="px-8 h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center gap-2">
                     {t("submit")} <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
@@ -79,7 +79,7 @@ function PatientFormContent() {
   );
 }
 
-// Wrap ด้วย Suspense สำหรับจัดการ Loading state
+// Wrapped with Suspense to handle loading states properly in Next.js
 export default function PatientForm() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center animate-pulse">Loading...</div>}>

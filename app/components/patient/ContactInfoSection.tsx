@@ -6,8 +6,11 @@ import { PhoneInputField } from "../ui/PhoneInputField";
 export const ContactInfoSection = ({ register, control, errors, t }: FormSectionProps) => {
     return (
         <div className="mb-8">
+            {/* Section Header */}
             <h2 className="text-xl font-bold text-slate-800 mb-6 border-b pb-2">Contact Information</h2>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                {/* Phone and Email Fields */}
                 <PhoneInputField
                     name="phoneNumber"
                     control={control}
@@ -25,7 +28,7 @@ export const ContactInfoSection = ({ register, control, errors, t }: FormSection
                 />
             </div>
 
-            {/* Address ให้ความกว้างเต็มบรรทัด */}
+            {/* Address field takes full width */}
             <TextAreaField
                 label={t("address")}
                 registration={register("address")}

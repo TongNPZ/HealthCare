@@ -5,12 +5,11 @@ import {
   Path,
   Control,
   UseFormRegister,
-  // 💡 1. เอา PatientCardProps ออกจากตรงนี้ เพราะ react-hook-form ไม่มีตัวนี้ครับ
   FieldErrors
 } from "react-hook-form";
 import { PatientFormData } from "@/lib/schema";
 
-// 💡 1. Type สำหรับข้อมูลผู้ป่วยและ Pusher
+// Patient session and Pusher real-time payload types
 export interface PatientSession {
   patientId: string;
   formData: PatientFormData;
@@ -24,13 +23,13 @@ export interface PusherUpdatePayload {
   status: string;
 }
 
-// 💡 2. Type สำหรับตัวเลือก (Dropdown Select)
+// Dropdown select option type
 export interface SelectOption {
   value: string;
   label: string;
 }
 
-// 💡 3. Type สำหรับ Input Fields ทั่วไป
+// General input field types
 export interface InputFieldProps {
   label: string;
   required?: boolean;
@@ -43,7 +42,7 @@ export interface InputFieldProps {
 
 export type TextAreaFieldProps = Omit<InputFieldProps, "type">;
 
-// 💡 4. Types สำหรับ Form Controls ใหม่ (DatePicker, Select, Phone)
+// Base properties for specialized form controls
 export interface BaseFieldProps {
   name: Path<PatientFormData>;
   control: Control<PatientFormData>;
@@ -53,7 +52,7 @@ export interface BaseFieldProps {
 }
 
 export interface SelectFieldProps extends BaseFieldProps {
-  options: { value: string; label: string }[];
+  options: SelectOption[];
   placeholder?: string;
   isMulti?: boolean;
   isClearable?: boolean;
@@ -65,7 +64,7 @@ export interface DatePickerFieldProps extends BaseFieldProps {
 
 export type PhoneInputFieldProps = BaseFieldProps;
 
-// 💡 5. Type สำหรับ Props ของแต่ละ Section ในหน้าฟอร์ม (Patient)
+// Props for patient form sections
 export interface FormSectionProps {
   register: UseFormRegister<PatientFormData>;
   control: Control<PatientFormData>;
@@ -73,14 +72,13 @@ export interface FormSectionProps {
   t: (key: string) => string;
 }
 
-// 💡 6. Types สำหรับ Component ของหน้า Staff Dashboard
-// 💡 เพิ่มคำว่า export และแก้ onClick ให้รับ id เป็น string ครับ
+// Staff dashboard component types
 export interface PatientCardProps {
   patient: PatientSession;
   currentTime: number;
   onClick: (id: string) => void;
-  t?: (key: string) => string; // ใส่ ? เผื่อไว้ในกรณีที่ไม่ได้ใช้งาน
-  statusBadge?: (status: string) => React.ReactNode; // ใส่ ? เผื่อไว้
+  t?: (key: string) => string;
+  statusBadge?: (status: string) => React.ReactNode;
 }
 
 export interface PatientListProps {

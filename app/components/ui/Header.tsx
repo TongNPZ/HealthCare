@@ -1,25 +1,26 @@
-// src/components/Header.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n";
-import { HeartPulse, Globe } from "lucide-react";
+import { HeartPulse } from "lucide-react";
 import Link from "next/link";
 
 interface HeaderProps {
-  title?: string; // 💡 ใส่ ? เพื่อให้เป็น optional
+  title?: string;
 }
 
 const Header: React.FC<HeaderProps> = ({ title }) => {
   const { i18n, t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
 
+  // Prevent hydration mismatch by ensuring the component is fully mounted
   useEffect(() => {
     const timer = setTimeout(() => setIsMounted(true), 0);
     return () => clearTimeout(timer);
   }, []);
 
+  // Handle language switching logic
   const toggleLanguage = () => {
     const newLang = i18n.language === "th" ? "en" : "th";
     localStorage.setItem("appLang", newLang);
@@ -29,12 +30,14 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
   if (!isMounted) return null;
 
   const currentLang = i18n.language || "th";
-  // 💡 ถ้าไม่มี title ส่งมา ให้ใช้คำแปล "header" เป็นค่าเริ่มต้น
+
+  // Use provided title, fallback to translated header, or default to generic string
   const displayTitle = title || t("header") || "HealthCare System";
 
   return (
     <header className="w-full bg-white border-b border-slate-100 py-4 font-sans sticky top-0 z-50 shadow-sm backdrop-blur-md bg-white/90">
       <div className="max-w-6xl mx-auto px-6 flex items-center justify-between gap-4">
+
         {/* Logo Section */}
         <Link
           href="/"
@@ -81,6 +84,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
             </span>
           </button>
         </div>
+
       </div>
     </header>
   );

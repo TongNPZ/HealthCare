@@ -3,6 +3,7 @@ import { Controller } from "react-hook-form";
 import Select, { SingleValue, MultiValue, StylesConfig } from "react-select";
 import { SelectFieldProps, SelectOption } from "@/lib/types";
 
+// Generate custom styles for react-select dynamically based on error state and focus
 export const getCustomSelectStyles = (hasError: boolean): StylesConfig<SelectOption, boolean> => ({
     control: (base, state) => ({
         ...base,
@@ -35,10 +36,13 @@ export const SelectField = ({
     name, control, label, options, error, required = true, isMulti = false, isClearable = false, placeholder
 }: SelectFieldProps) => (
     <div className="flex flex-col gap-1.5 mb-5">
+        {/* Field label with required or optional indicator */}
         <label className="text-sm font-semibold text-slate-700 ml-1">
             {label} {required && <span className="text-rose-500">*</span>}
             {!required && <span className="text-slate-400 font-normal text-xs ml-1">(Optional)</span>}
         </label>
+
+        {/* React Hook Form Controller to manage Select state */}
         <Controller
             name={name}
             control={control}
@@ -50,21 +54,27 @@ export const SelectField = ({
                     options={options}
                     placeholder={placeholder || "Select..."}
                     styles={getCustomSelectStyles(!!error)}
+
+                    // Map form value strings back to react-select option objects
                     value={
                         isMulti
-                            ? options.filter(opt => field.value?.includes(opt.value))
+                            ? options.filter(opt => (field.value as string[])?.includes(opt.value))
                             : options.find(opt => opt.value === field.value) || null
                     }
+
+                    // Extract values from react-select objects to store in form state
                     onChange={(val) => {
                         if (isMulti) {
-                            field.onChange((val as MultiValue<{ value: string; label: string }>).map(item => item.value));
+                            field.onChange((val as MultiValue<SelectOption>).map(item => item.value));
                         } else {
-                            field.onChange((val as SingleValue<{ value: string; label: string }>)?.value ?? "");
+                            field.onChange((val as SingleValue<SelectOption>)?.value ?? "");
                         }
                     }}
                 />
             )}
         />
+
+        {/* Error message display */}
         {error && <span className="text-rose-500 text-xs font-medium ml-1">{error}</span>}
     </div>
 );

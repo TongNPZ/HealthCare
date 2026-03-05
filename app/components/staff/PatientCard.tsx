@@ -1,10 +1,8 @@
-// src/app/components/staff/PatientCard.tsx
 import React from "react";
 import { User } from "lucide-react";
 import { PatientCardProps } from "@/lib/types";
 
 export const PatientCard = ({ patient, currentTime, onClick }: PatientCardProps) => {
-  // 💡 แก้จาก Date.now() เป็น currentTime ที่ส่งมาจาก Props แทนครับ
   const safeLastUpdated = patient.lastUpdated || currentTime;
   const minutesAgo = Math.floor((currentTime - safeLastUpdated) / 60000);
 
@@ -12,9 +10,18 @@ export const PatientCard = ({ patient, currentTime, onClick }: PatientCardProps)
     ? `${patient.formData.firstName} ${patient.formData.lastName}`
     : patient.patientId;
 
-  const statusBadgeClass = patient.status === 'submitted'
-    ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-    : 'bg-blue-50 text-blue-600 border-blue-100';
+  // Determine indicator status based on assignment requirements
+  let displayStatus = "ACTIVE";
+  let statusBadgeClass = "bg-blue-50 text-blue-600 border-blue-100";
+
+  if (patient.status === 'submitted') {
+    displayStatus = "SUBMITTED";
+    statusBadgeClass = "bg-emerald-50 text-emerald-600 border-emerald-100";
+  } else if (minutesAgo >= 2) {
+    // Consider inactive if there is no update in the last 2 minutes
+    displayStatus = "INACTIVE";
+    statusBadgeClass = "bg-amber-50 text-amber-600 border-amber-100";
+  }
 
   return (
     <div
@@ -37,7 +44,7 @@ export const PatientCard = ({ patient, currentTime, onClick }: PatientCardProps)
 
       <div className="flex items-center justify-between mt-auto">
         <span className={`text-[10px] font-black px-3 py-1 rounded-lg border ${statusBadgeClass}`}>
-          {patient.status.toUpperCase()}
+          {displayStatus}
         </span>
       </div>
     </div>
