@@ -1,7 +1,24 @@
 // app/components/ui/FormFields.tsx
 import React from "react";
 import { StylesConfig } from "react-select";
-import { SelectOption, InputFieldProps, TextAreaFieldProps } from "@/lib/types";
+import { Controller } from "react-hook-form";
+import Select, { SingleValue, MultiValue } from "react-select";
+import DatePicker from "react-datepicker";
+import PhoneInput from "react-phone-input-2";
+
+// 💡 Import Types ทั้งหมดจาก lib/types ตามกฎที่เราตกลงกันไว้
+import {
+  SelectOption,
+  InputFieldProps,
+  TextAreaFieldProps,
+  SelectFieldProps,
+  DatePickerFieldProps,
+  PhoneInputFieldProps
+} from "../../../lib/types";
+
+// ==========================================
+// Base Form Fields (จากโค้ดเดิม)
+// ==========================================
 
 export const getCustomSelectStyles = (hasError: boolean): StylesConfig<SelectOption, boolean> => ({
   control: (base, state) => ({
@@ -69,6 +86,108 @@ export const TextAreaField = ({ label, required = true, error, registration, pla
         `}
       />
     </div>
+    {error && <span className="text-rose-500 text-xs font-medium ml-1">{error}</span>}
+  </div>
+);
+
+// ==========================================
+// 1. SelectField (สำหรับ Dropdown และ Multi-select)
+// ==========================================
+export const SelectField = ({
+  name, control, label, options, error, required = true, isMulti = false, isClearable = false, placeholder
+}: SelectFieldProps) => (
+  <div className="flex flex-col gap-1.5 mb-5">
+    <label className="text-sm font-semibold text-slate-700 ml-1">
+      {label} {required && <span className="text-rose-500">*</span>}
+      {!required && <span className="text-slate-400 font-normal text-xs ml-1">(Optional)</span>}
+    </label>
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <Select
+          {...field}
+          isMulti={isMulti}
+          isClearable={isClearable}
+          options={options}
+          placeholder={placeholder || "Select..."}
+          styles={getCustomSelectStyles(!!error)}
+          value={
+            isMulti
+              ? options.filter(opt => field.value?.includes(opt.value))
+              : options.find(opt => opt.value === field.value) || null
+          }
+          onChange={(val) => {
+            if (isMulti) {
+              field.onChange((val as MultiValue<{ value: string; label: string }>).map(item => item.value));
+            } else {
+              field.onChange((val as SingleValue<{ value: string; label: string }>)?.value ?? "");
+            }
+          }}
+        />
+      )}
+    />
+    {error && <span className="text-rose-500 text-xs font-medium ml-1">{error}</span>}
+  </div>
+);
+
+// ==========================================
+// 2. DatePickerField (สำหรับเลือกวันที่)
+// ==========================================
+export const DatePickerField = ({ name, control, label, error, required = true, placeholder }: DatePickerFieldProps) => (
+  <div className="flex flex-col gap-1.5 mb-5">
+    <label className="text-sm font-semibold text-slate-700 ml-1">
+      {label} {required && <span className="text-rose-500">*</span>}
+    </label>
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <DatePicker
+          // 💡 ใส่ as string ตรง field.value
+          selected={field.value ? new Date(field.value as string) : null}
+          onChange={(date: Date | null) => field.onChange(date ? date.toISOString().split('T')[0] : "")}
+          dateFormat="dd/MM/yyyy"
+          placeholderText={placeholder || "DD/MM/YYYY"}
+          wrapperClassName="w-full"
+          showMonthDropdown
+          showYearDropdown
+          dropdownMode="select"
+          className={`w-full h-11 px-4 rounded-xl border transition-all text-slate-800 outline-none
+            ${error
+              ? "border-rose-300 bg-rose-50 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10"
+              : "border-slate-200 bg-slate-50/50 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10"}`}
+        />
+      )}
+    />
+    {error && <span className="text-rose-500 text-xs font-medium ml-1">{error}</span>}
+  </div>
+);
+
+// ==========================================
+// 3. PhoneInputField (สำหรับกรอกเบอร์โทร)
+// ==========================================
+export const PhoneInputField = ({ name, control, label, error, required = true }: PhoneInputFieldProps) => (
+  <div className="flex flex-col gap-1.5 mb-5">
+    <label className="text-sm font-semibold text-slate-700 ml-1">
+      {label} {required && <span className="text-rose-500">*</span>}
+    </label>
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <PhoneInput
+          country={"th"}
+          // 💡 ใส่ as string ตรง field.value
+          value={field.value as string}
+          onChange={field.onChange}
+          inputClass={`!w-full !h-11 !text-slate-800 !rounded-xl transition-all outline-none
+            ${error
+              ? "!border-rose-300 !bg-rose-50 focus:!border-rose-500"
+              : "!border-slate-200 !bg-slate-50/50 focus:!border-blue-500 focus:!bg-white"}`}
+        />
+      )}
+    />
     {error && <span className="text-rose-500 text-xs font-medium ml-1">{error}</span>}
   </div>
 );

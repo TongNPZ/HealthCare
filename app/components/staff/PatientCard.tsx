@@ -1,51 +1,43 @@
-// src/components/staff/PatientCard.tsx
+// src/app/components/staff/PatientCard.tsx
+import React from "react";
 import { User } from "lucide-react";
-import { PatientSession } from "@/lib/types";
+import { PatientCardProps } from "@/lib/types";
 
-interface PatientCardProps {
-  patient: PatientSession;
-  currentTime: number;
-  onClick: () => void;
-  t: (key: string) => string;
-  statusBadge: (status: string) => React.ReactNode;
-}
+export const PatientCard = ({ patient, currentTime, onClick }: PatientCardProps) => {
+  // 💡 แก้จาก Date.now() เป็น currentTime ที่ส่งมาจาก Props แทนครับ
+  const safeLastUpdated = patient.lastUpdated || currentTime;
+  const minutesAgo = Math.floor((currentTime - safeLastUpdated) / 60000);
 
-export const PatientCard = ({
-  patient,
-  currentTime,
-  onClick,
-  t,
-  statusBadge,
-}: PatientCardProps) => {
-  // 💡 แก้สูตรการคำนวณบรรทัดนี้: หาผลลัพธ์ออกมาก่อน ถ้าติดลบให้ปัดเป็น 0
-  const timeAgo = Math.max(0, Math.floor((currentTime - patient.lastUpdated) / 60000));
+  const displayName = patient.formData.firstName
+    ? `${patient.formData.firstName} ${patient.formData.lastName}`
+    : patient.patientId;
 
-  const isExpiredSoon = timeAgo >= 8;
+  const statusBadgeClass = patient.status === 'submitted'
+    ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+    : 'bg-blue-50 text-blue-600 border-blue-100';
 
   return (
     <div
-      onClick={onClick}
-      className="p-6 bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-lg hover:border-indigo-400 cursor-pointer transition-all flex flex-col min-h-[160px]"
+      onClick={() => onClick(patient.patientId)}
+      className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-400 cursor-pointer transition-all group flex flex-col h-full"
     >
       <div className="flex justify-between items-start mb-4">
-        <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
-          <User className="w-5 h-5" />
+        <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
+          <User className="w-6 h-6" />
         </div>
-        {isExpiredSoon && (
-          <span className="text-[10px] font-bold text-rose-500 bg-rose-50 px-2 py-1 rounded-md animate-pulse">
-            EXPIRING
-          </span>
-        )}
+
+        <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-md">
+          {minutesAgo < 1 ? "Just now" : `${minutesAgo}m ago`}
+        </span>
       </div>
-      <h3 className="font-bold text-slate-800 truncate mb-1">
-        {patient.formData.firstName
-          ? `${patient.formData.firstName} ${patient.formData.lastName || ""}`
-          : patient.patientId}
+
+      <h3 className="font-bold text-slate-800 text-lg truncate mb-4">
+        {displayName}
       </h3>
+
       <div className="flex items-center justify-between mt-auto">
-        {statusBadge(patient.status)}
-        <span className="text-[10px] text-slate-400 font-bold">
-          {timeAgo}m ago
+        <span className={`text-[10px] font-black px-3 py-1 rounded-lg border ${statusBadgeClass}`}>
+          {patient.status.toUpperCase()}
         </span>
       </div>
     </div>

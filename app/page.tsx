@@ -34,7 +34,7 @@ export default function HomePage() {
             </p>
 
             <Link
-              href="/patient-mode"
+              href="/patient-simulator"
               className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold transition-colors shadow-md shadow-blue-500/20"
             >
               Enter Patient Mode

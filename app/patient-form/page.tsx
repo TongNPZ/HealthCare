@@ -1,0 +1,89 @@
+// src/app/patient-form/page.tsx
+"use client";
+
+import { Suspense } from "react";
+import { usePatientForm } from "@/hooks/usePatientForm";
+
+// 💡 นำเข้า Section ต่างๆ ที่เราหั่นเอาไว้
+import { PersonalInfoSection } from "../components/patient/PersonalInfoSection";
+import { ContactInfoSection } from "../components/patient/ContactInfoSection";
+import { EmergencyContactSection } from "../components/patient/EmergencyContactSection";
+
+function PatientFormContent() {
+  const {
+    formMethods, isMounted, isSubmitted, onSubmit, t, router,
+    nationalityOptions, languageOptions, religionOptions
+  } = usePatientForm();
+
+  const { register, handleSubmit, control, formState: { errors } } = formMethods;
+
+  // ป้องกัน Hydration Error
+  if (!isMounted) return null;
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col relative">
+      <main className="flex-1 p-4 md:p-8 flex flex-col items-center">
+        <div className="w-full max-w-4xl">
+
+          {/* ปุ่ม Back */}
+          <button onClick={() => router.push("/patient-simulator")} className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-600 mb-6 transition-colors bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+            Back to User List
+          </button>
+
+          <div className="bg-white rounded-[2rem] shadow-xl shadow-blue-900/5 p-6 md:p-12 border border-slate-100">
+
+            {/* สถานะ: เมื่อส่งข้อมูลสำเร็จ */}
+            {isSubmitted ? (
+              <div className="text-center py-20 bg-blue-50 rounded-3xl border-2 border-dashed border-blue-200">
+                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/30">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                </div>
+                <h2 className="text-2xl font-bold text-blue-900 mb-2">{t("completedTitle")}</h2>
+                <p className="text-blue-600 mb-8">{t("completedText")}</p>
+                <button onClick={() => router.push("/patient-simulator")} className="px-6 py-2.5 bg-white border-2 border-blue-200 text-blue-700 hover:bg-blue-600 hover:text-white rounded-xl transition-all shadow-sm">
+                  Return to Patient List
+                </button>
+              </div>
+            ) : (
+
+              /* สถานะ: ฟอร์มกรอกข้อมูล */
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
+
+                {/* 💡 1. ส่วนข้อมูลส่วนตัว */}
+                <PersonalInfoSection
+                  register={register} control={control} errors={errors} t={t}
+                  nationalityOptions={nationalityOptions}
+                  religionOptions={religionOptions}
+                  languageOptions={languageOptions}
+                />
+
+                {/* 💡 2. ส่วนข้อมูลการติดต่อ */}
+                <ContactInfoSection register={register} control={control} errors={errors} t={t} />
+
+                {/* 💡 3. ส่วนข้อมูลติดต่อฉุกเฉิน */}
+                <EmergencyContactSection register={register} control={control} errors={errors} t={t} />
+
+                {/* ปุ่ม Submit */}
+                <div className="pt-6 flex justify-center border-t border-slate-100 mt-4">
+                  <button type="submit" className="px-8 h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center gap-2">
+                    {t("submit")} <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// Wrap ด้วย Suspense สำหรับจัดการ Loading state
+export default function PatientForm() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center animate-pulse">Loading...</div>}>
+      <PatientFormContent />
+    </Suspense>
+  );
+}
