@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@cospired/i18n-iso-languages": "^4.2.0",
     "@hookform/resolvers": "^5.2.2",
     "@types/react-datepicker": "^6.2.0",
     "i18n-iso-countries": "^7.14.0",

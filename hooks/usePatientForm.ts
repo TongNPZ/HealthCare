@@ -5,16 +5,24 @@ import { patientFormSchema, PatientFormData } from "@/lib/schema";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import Swal from "sweetalert2";
-import ISO6391 from 'iso-639-1';
 
 // Import country libraries and corresponding locales
 import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
 import thLocale from "i18n-iso-countries/langs/th.json";
 
+// 💡 Import language libraries and corresponding locales
+import languages from "@cospired/i18n-iso-languages";
+import enLangLocale from "@cospired/i18n-iso-languages/langs/en.json";
+import thLangLocale from "@cospired/i18n-iso-languages/langs/th.json";
+
 // Register locales so the system recognizes country names
 countries.registerLocale(enLocale);
 countries.registerLocale(thLocale);
+
+// 💡 Register locales so the system recognizes language names
+languages.registerLocale(enLangLocale);
+languages.registerLocale(thLangLocale);
 
 export const usePatientForm = () => {
   const [patientId, setPatientId] = useState<string>("");
@@ -37,7 +45,6 @@ export const usePatientForm = () => {
   const { watch, formState: { errors } } = formMethods;
   const allFields = watch();
 
-  // Use Ref to store latest data preventing wrong abandoned state
   const allFieldsRef = useRef(allFields);
   const isSubmittedRef = useRef(isSubmitted);
 
@@ -52,21 +59,20 @@ export const usePatientForm = () => {
       const currentId = urlId || "USER-" + Math.random().toString(36).substring(2, 6).toUpperCase();
       setPatientId(currentId);
 
-      // Load previously saved form data if available
       const savedFormData = localStorage.getItem(`formData_${currentId}`);
       if (savedFormData) {
         try {
           const parsedData = JSON.parse(savedFormData);
-          formMethods.reset(parsedData); // Auto-fill inputs with saved data
+          formMethods.reset(parsedData);
         } catch (e) {
           console.error("Failed to parse saved form data", e);
         }
       }
     }, 0);
     return () => clearTimeout(timer);
-  }, [searchParams, formMethods]); // Include formMethods in dependency array
+  }, [searchParams, formMethods]);
 
-  // 2. Pusher Sync (send data normally while typing)
+  // 2. Pusher Sync
   useEffect(() => {
     if (isMounted && !isSubmitted && patientId) {
       const sync = async () => {
@@ -80,15 +86,13 @@ export const usePatientForm = () => {
     }
   }, [allFields, isMounted, isSubmitted, patientId]);
 
+  // 3. Handle abandonment
   useEffect(() => {
     const notifyAbandonment = () => {
       if (!isSubmittedRef.current && patientId) {
-        // Check if this form was previously submitted
         const wasSubmitted = !!localStorage.getItem(`submitted_${patientId}`);
 
         if (wasSubmitted) {
-          // Case: Previously submitted (entered Edit mode and pressed Back) 
-          // Retrieve saved data to restore on monitor
           const savedData = localStorage.getItem(`formData_${patientId}`);
           const originalData = savedData ? JSON.parse(savedData) : allFieldsRef.current;
 
@@ -100,8 +104,6 @@ export const usePatientForm = () => {
           }).catch(e => console.error(e));
 
         } else {
-          // Case: Created new card but exited without filling
-          // 1. Remove own ID from Patient Simulator page
           const savedSessions = localStorage.getItem("mock_patient_sessions");
           if (savedSessions) {
             try {
@@ -117,7 +119,6 @@ export const usePatientForm = () => {
             }
           }
 
-          // 2. Kick out of Staff Monitor
           fetch("/api/patient-update", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -128,10 +129,7 @@ export const usePatientForm = () => {
       }
     };
 
-    // Handle tab close or page refresh
     window.addEventListener("beforeunload", notifyAbandonment);
-
-    // Handle back navigation (Component unmount)
     return () => {
       window.removeEventListener("beforeunload", notifyAbandonment);
       notifyAbandonment();
@@ -145,6 +143,8 @@ export const usePatientForm = () => {
       text: t("confirmText"),
       icon: "question",
       showCancelButton: true,
+      confirmButtonText: t("btnConfirm"),
+      cancelButtonText: t("btnCancel"),
       confirmButtonColor: "#2563eb",
       customClass: { popup: "rounded-2xl" },
     });
@@ -160,17 +160,37 @@ export const usePatientForm = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formData: data, status: "submitted", patientId }),
       });
-      Swal.fire({ title: t("successTitle"), icon: "success", timer: 2000, showConfirmButton: false });
+
+      Swal.fire({
+        title: t("successTitle"),
+        text: t("successText"),
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false
+      });
     }
   };
 
+  // Country Options
   const nationalityOptions = useMemo(() => {
     const countryObj = countries.getNames(i18n.language === "th" ? "th" : "en", { select: "official" });
     return Object.entries(countryObj).map(([code, name]) => ({ value: name, label: name }));
   }, [i18n.language]);
 
-  const languageOptions = useMemo(() => ISO6391.getAllNames().map(name => ({ value: name, label: name })), []);
+  // 💡 Language Options (Using reliable i18n-iso-languages library)
+  const languageOptions = useMemo(() => {
+    const currentLang = i18n.language === "th" ? "th" : "en";
+    const langObj = languages.getNames(currentLang);
 
+    return Object.entries(langObj).map(([code, translatedName]) => ({
+      // Keep English name for backend consistency (value)
+      value: languages.getName(code, "en") || translatedName,
+      // Show beautifully translated name to user (label)
+      label: translatedName
+    })).sort((a, b) => a.label.localeCompare(b.label)); // Sort alphabetically
+  }, [i18n.language]);
+
+  // Religion Options
   const religionOptions = [
     { value: "Buddhism", label: t("buddhism") || "Buddhism" },
     { value: "Christianity", label: t("christianity") || "Christianity" },

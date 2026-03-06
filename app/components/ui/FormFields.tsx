@@ -5,6 +5,7 @@ import Select, { SingleValue, MultiValue } from "react-select";
 import DatePicker from "react-datepicker";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import "react-datepicker/dist/react-datepicker.css";
 
 // Import all required types from the centralized types definitions
 import {

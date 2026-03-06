@@ -56,11 +56,11 @@ export const PatientDetailView = ({ patient, t }: { patient: PatientSession; t: 
       {/* Emergency Contact Section */}
       <div className="md:col-span-2 bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
         <h3 className="flex items-center gap-2 font-bold text-slate-800 mb-4">
-          <ShieldAlert className="w-4 h-4 text-amber-500" /> Emergency Contact
+          <ShieldAlert className="w-4 h-4 text-amber-500" /> {t("emergencyContact")}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <DataRow label="Name" value={formData.emergencyContactName} tFallback="-" />
-          <DataRow label="Relationship" value={formData.emergencyContactRelationship} tFallback="-" />
+          <DataRow label={t("contactName")} value={formData.emergencyContactName} tFallback="-" />
+          <DataRow label={t("relationship")} value={formData.emergencyContactRelationship} tFallback="-" />
         </div>
       </div>
 

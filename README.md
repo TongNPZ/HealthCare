@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏥 HealthCare+ Real-time Patient Registration System
 
-## Getting Started
+A modern, robust, and real-time patient registration platform built with Next.js. This system features a highly responsive patient form and a live staff monitoring dashboard to demonstrate real-time WebSocket capabilities.
 
-First, run the development server:
+## 🔗 Links
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Repository:** https://github.com/TongNPZ/HealthCare.git
+
+## ✨ Core Features
+
+- **📝 Comprehensive Patient Form:** Includes all required fields (Name, DoB, Gender, Contact details, Address, Nationality, Language) and optional fields (Middle Name, Emergency Contact, Religion).
+- **🛡️ Robust Form Validation:** Powered by `react-hook-form` and `zod` for strict, type-safe validation (e.g., required fields, email format, 9-15 digit phone numbers).
+- **⚡ Real-time Staff Dashboard:** Built with **Pusher (WebSockets)**, allowing medical staff to monitor patients filling out forms instantly.
+- **📊 Live Status Indicators:** Displays clear statuses on the staff monitor:
+  - `ACTIVE`: Patient is actively filling the form.
+  - `INACTIVE`: Patient has been idle for 2+ minutes.
+  - `SUBMITTED`: Patient has successfully submitted the form.
+- **📱 Fully Responsive UI:** Crafted with Tailwind CSS to ensure a seamless experience across mobile and desktop devices.
+
+## 🌟 Bonus Features (Extra Implementations)
+
+Beyond the core requirements, the following features were added to enhance the application:
+
+- **🌐 Full Localization (i18n):** Seamlessly switch between English (EN) and Thai (TH) across all pages, forms, placeholders, and dynamic dropdowns (using `@cospired/i18n-iso-languages`).
+- **🧪 Built-in Patient Simulator:** A dedicated simulator interface (`/patient-simulator`) to mock concurrent users and easily test the real-time capabilities without needing multiple devices.
+- **🧹 Auto-cleanup System:** Abandoned sessions (users who close the tab without submitting) are automatically cleared from the staff dashboard after 10 minutes to prevent memory leaks and clutter.
+- **✨ Enhanced UX/Feedback:** Integrated SweetAlert2 for beautiful, animated confirmation dialogs and success feedback.
+
+## 🛠️ Tech Stack
+
+- **Framework:** Next.js 15 (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **Real-time Communication:** Pusher (WebSockets)
+- **Localization:** `react-i18next` + `i18n-iso-countries` + `@cospired/i18n-iso-languages`
+- **Form Management:** React Hook Form + Zod
+
+## 🚀 Getting Started
+
+### 1. Prerequisites
+
+Ensure you have **Node.js (v18 or newer)** installed on your machine.
+
+### 2. Environment Variables
+
+Create a `.env.local` file in the root directory and add your Pusher credentials:
+
+```env
+NEXT_PUBLIC_PUSHER_APP_KEY=your_key
+NEXT_PUBLIC_PUSHER_CLUSTER=your_cluster
+PUSHER_APP_ID=your_id
+PUSHER_SECRET=your_secret
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```Bash
+# Install dependencies
+npm install
+# Run the development server
+npm run dev
+```

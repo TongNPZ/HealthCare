@@ -19,6 +19,9 @@ const resources = {
             lastUpdated: "Last updated",
             justNow: "Just now",
             minsAgo: "m ago",
+            // 💡 เพิ่มคำแปลปุ่ม Back ตรงนี้
+            backToUserList: "Back to User List",
+            returnToPatientList: "Return to Patient List",
 
             // --- PATIENT SIMULATOR PAGE ---
             simulatorTitle: "Patient Simulator",
@@ -58,6 +61,11 @@ const resources = {
             relationship: "Relationship",
             address: "Address Details",
             addressPlace: "House No., Street, District, Province...",
+
+            searchCountry: "Search country...",
+            searchLang: "Select languages...",
+            placeholderName: "e.g. Jane Doe",
+            placeholderRel: "e.g. Mother, Spouse",
 
             // Select Options
             selectGender: "Select Gender",
@@ -122,6 +130,9 @@ const resources = {
             lastUpdated: "อัปเดตล่าสุด",
             justNow: "เมื่อสักครู่",
             minsAgo: "นาทีที่แล้ว",
+            // 💡 เพิ่มคำแปลปุ่ม Back ตรงนี้
+            backToUserList: "กลับไปยังหน้ารายชื่อผู้จำลอง",
+            returnToPatientList: "กลับไปยังหน้ารายชื่อผู้ป่วย",
 
             // --- PATIENT SIMULATOR PAGE ---
             simulatorTitle: "โปรแกรมจำลองผู้ป่วย",
@@ -161,6 +172,11 @@ const resources = {
             relationship: "ความสัมพันธ์",
             address: "รายละเอียดที่อยู่",
             addressPlace: "บ้านเลขที่, ถนน, ตำบล, อำเภอ, จังหวัด...",
+
+            searchCountry: "ค้นหาประเทศ...",
+            searchLang: "เลือกภาษา...",
+            placeholderName: "เช่น นางสมศรี ใจดี",
+            placeholderRel: "เช่น มารดา, คู่สมรส",
 
             // Select Options
             selectGender: "เลือกเพศ",
