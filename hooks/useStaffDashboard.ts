@@ -4,8 +4,8 @@ import { pusherClient } from "@/lib/pusher";
 import { PatientSession, PusherUpdatePayload } from "@/lib/types";
 
 const SUBMITTED_RETENTION = 10 * 60 * 1000; // 10 minutes after form submission
-const ACTIVE_RETENTION = 60 * 60 * 1000;    // 1 hour (fallback for computer sleep/disconnect)
-const WAITING_RETENTION = 5 * 60 * 1000;    // 5 minutes for newly created but unfilled forms
+const ACTIVE_RETENTION = 10 * 60 * 1000;    // 10 minutes (matching patient inactivity timeout)
+const WAITING_RETENTION = 10 * 60 * 1000;   // 10 minutes fallback
 
 export const useStaffDashboard = () => {
     const [patients, setPatients] = useState<Record<string, PatientSession>>({});

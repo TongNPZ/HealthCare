@@ -11,7 +11,7 @@ import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
 import thLocale from "i18n-iso-countries/langs/th.json";
 
-// 💡 Import language libraries and corresponding locales
+// Import language libraries and corresponding locales
 import languages from "@cospired/i18n-iso-languages";
 import enLangLocale from "@cospired/i18n-iso-languages/langs/en.json";
 import thLangLocale from "@cospired/i18n-iso-languages/langs/th.json";
@@ -20,7 +20,7 @@ import thLangLocale from "@cospired/i18n-iso-languages/langs/th.json";
 countries.registerLocale(enLocale);
 countries.registerLocale(thLocale);
 
-// 💡 Register locales so the system recognizes language names
+// Register locales so the system recognizes language names
 languages.registerLocale(enLangLocale);
 languages.registerLocale(thLangLocale);
 
@@ -86,7 +86,7 @@ export const usePatientForm = () => {
     }
   }, [allFields, isMounted, isSubmitted, patientId]);
 
-  // 3. Handle abandonment
+  // 3. Handle abandonment (when user closes tab/window)
   useEffect(() => {
     const notifyAbandonment = () => {
       if (!isSubmittedRef.current && patientId) {
@@ -136,7 +136,39 @@ export const usePatientForm = () => {
     };
   }, [patientId]);
 
-  // 4. Submit Handler
+  // 4. Inactivity Timeout (Kick user out after 10 minutes of no typing)
+  useEffect(() => {
+    if (!isMounted || isSubmitted || !patientId) return;
+
+    // 💡 Set timeout for 10 minutes (10 * 60 * 1000)
+    const inactivityTimer = setTimeout(() => {
+      // 1. Notify staff that the patient abandoned the form immediately
+      fetch("/api/patient-update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ formData: allFieldsRef.current, status: "abandoned", patientId }),
+      }).catch(e => console.error(e));
+
+      // 2. Clear local storage data to prevent it from reloading
+      localStorage.removeItem(`formData_${patientId}`);
+
+      // 3. Kick user back to home
+      Swal.fire({
+        title: "Session Expired",
+        // 💡 เปลี่ยนข้อความแจ้งเตือนเป็น 10 minutes
+        text: "Your session has expired due to 10 minutes of inactivity.",
+        icon: "warning",
+        timer: 3000,
+        showConfirmButton: false
+      }).then(() => {
+        router.push("/");
+      });
+    }, 10 * 60 * 1000); // 💡 10 Minutes
+
+    return () => clearTimeout(inactivityTimer);
+  }, [allFields, isMounted, isSubmitted, patientId, router]);
+
+  // 5. Submit Handler
   const onSubmit = async (data: PatientFormData) => {
     const result = await Swal.fire({
       title: t("confirmTitle"),
@@ -177,7 +209,7 @@ export const usePatientForm = () => {
     return Object.entries(countryObj).map(([code, name]) => ({ value: name, label: name }));
   }, [i18n.language]);
 
-  // 💡 Language Options (Using reliable i18n-iso-languages library)
+  // Language Options (Using reliable i18n-iso-languages library)
   const languageOptions = useMemo(() => {
     const currentLang = i18n.language === "th" ? "th" : "en";
     const langObj = languages.getNames(currentLang);
