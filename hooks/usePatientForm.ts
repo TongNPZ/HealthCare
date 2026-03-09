@@ -6,6 +6,10 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import Swal from "sweetalert2";
 
+// 💡 1. Import Pusher client และ Type ให้ถูกต้องเพื่อหลีกเลี่ยง any
+import { pusherClient } from "@/lib/pusher";
+import { PusherUpdatePayload } from "@/lib/types";
+
 // Import country libraries and corresponding locales
 import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
@@ -86,6 +90,29 @@ export const usePatientForm = () => {
     }
   }, [allFields, isMounted, isSubmitted, patientId]);
 
+  // 💡 2.5 Handshake Sync (Event-driven connection แบบ Type-safe)
+  useEffect(() => {
+    if (!isMounted || isSubmitted || !patientId || !pusherClient) return;
+
+    const channel = pusherClient.subscribe("patient-channel");
+
+    // 💡 2. ใช้ PusherUpdatePayload แทนการใช้ any
+    channel.bind("form-update", (data: PusherUpdatePayload) => {
+      // Catch the broadcast when staff dashboard mounts
+      if (data.status === "staff-ready") {
+        fetch("/api/patient-update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ formData: allFieldsRef.current, status: "actively filling", patientId }),
+        }).catch(e => console.error("Handshake error:", e));
+      }
+    });
+
+    return () => {
+      pusherClient?.unsubscribe("patient-channel");
+    };
+  }, [isMounted, isSubmitted, patientId]);
+
   // 3. Handle abandonment (when user closes tab/window)
   useEffect(() => {
     const notifyAbandonment = () => {
@@ -132,7 +159,6 @@ export const usePatientForm = () => {
     window.addEventListener("beforeunload", notifyAbandonment);
     return () => {
       window.removeEventListener("beforeunload", notifyAbandonment);
-      notifyAbandonment();
     };
   }, [patientId]);
 
@@ -140,7 +166,7 @@ export const usePatientForm = () => {
   useEffect(() => {
     if (!isMounted || isSubmitted || !patientId) return;
 
-    // 💡 Set timeout for 10 minutes (10 * 60 * 1000)
+    // Set timeout for 10 minutes (10 * 60 * 1000)
     const inactivityTimer = setTimeout(() => {
       // 1. Notify staff that the patient abandoned the form immediately
       fetch("/api/patient-update", {
@@ -155,7 +181,6 @@ export const usePatientForm = () => {
       // 3. Kick user back to home
       Swal.fire({
         title: "Session Expired",
-        // 💡 เปลี่ยนข้อความแจ้งเตือนเป็น 10 minutes
         text: "Your session has expired due to 10 minutes of inactivity.",
         icon: "warning",
         timer: 3000,
@@ -163,7 +188,7 @@ export const usePatientForm = () => {
       }).then(() => {
         router.push("/");
       });
-    }, 10 * 60 * 1000); // 💡 10 Minutes
+    }, 10 * 60 * 1000); // 10 Minutes
 
     return () => clearTimeout(inactivityTimer);
   }, [allFields, isMounted, isSubmitted, patientId, router]);

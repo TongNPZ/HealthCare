@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+// 💡 1. Import PatientSession to avoid using 'any'
+import { PatientSession } from "@/lib/types";
 
 export const usePatientMode = () => {
     const [sessions, setSessions] = useState<string[]>([]);
@@ -29,10 +31,19 @@ export const usePatientMode = () => {
         // Store creation time to track users who haven't filled out the form yet
         localStorage.setItem(`created_${newId}`, Date.now().toString());
 
+        // Initialize empty form data so the staff dashboard can pick it up if they sweep the local storage
+        const emptyFormData = {
+            firstName: "", middleName: "", lastName: "", dateOfBirth: "", gender: "",
+            phoneNumber: "", email: "", address: "", preferredLanguage: [],
+            nationality: "", emergencyContactName: "", emergencyContactRelationship: "", religion: "",
+        };
+        localStorage.setItem(`formData_${newId}`, JSON.stringify(emptyFormData));
+
+        // Notify staff dashboard that a new user is waiting
         fetch("/api/patient-update", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ patientId: newId, status: "waiting", formData: {} }),
+            body: JSON.stringify({ patientId: newId, status: "waiting", formData: emptyFormData }),
         }).catch((e) => console.error(e));
     };
 
@@ -41,8 +52,8 @@ export const usePatientMode = () => {
 
         if (isSubmitted) {
             Swal.fire({
-                title: "ไม่อนุญาตให้ลบ!",
-                text: "รายการนี้กรอกข้อมูลเสร็จแล้ว หากต้องการแก้ไขข้อมูลต้องเปิดเข้าไปทำข้างในฟอร์มเท่านั้น",
+                title: "Deletion Not Allowed!",
+                text: "This record has already been submitted. To edit the information, you must open the form directly.",
                 icon: "warning",
                 confirmButtonColor: "#3b82f6",
                 customClass: { popup: "rounded-2xl" }
@@ -64,6 +75,18 @@ export const usePatientMode = () => {
         localStorage.removeItem(`created_${idToRemove}`);
         localStorage.removeItem(`formData_${idToRemove}`);
 
+        // Clear history in the staff dashboard card (supports single-tab testing)
+        const historyStr = localStorage.getItem("staff_dashboard_history");
+        if (historyStr) {
+            try {
+                // 💡 Replace 'any' with 'PatientSession'
+                const history: Record<string, PatientSession> = JSON.parse(historyStr);
+                delete history[idToRemove];
+                localStorage.setItem("staff_dashboard_history", JSON.stringify(history));
+            } catch (e) { }
+        }
+
+        // Notify staff dashboard to remove the card
         fetch("/api/patient-update", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -76,7 +99,6 @@ export const usePatientMode = () => {
         if (!isMounted) return;
 
         // Retention time before expiration (10 minutes = 10 * 60 * 1000)
-        // Tip: For quick testing, change to 10 * 1000
         const RETENTION_TIME = 10 * 60 * 1000;
 
         const cleanupExpiredSessions = () => {
@@ -85,16 +107,13 @@ export const usePatientMode = () => {
                 const now = Date.now();
 
                 const validSessions = prev.filter(id => {
-                    // Retrieve submission and creation times
                     const submittedAt = localStorage.getItem(`submitted_${id}`);
                     const createdAt = localStorage.getItem(`created_${id}`);
-
                     let shouldRemove = false;
 
-                    // Check for expiration
                     if (submittedAt) {
                         if (submittedAt === "true") {
-                            shouldRemove = true; // Handle legacy boolean bug
+                            shouldRemove = true;
                         } else {
                             const timePassed = now - parseInt(submittedAt);
                             if (timePassed >= RETENTION_TIME) shouldRemove = true;
@@ -103,7 +122,6 @@ export const usePatientMode = () => {
                         const timePassed = now - parseInt(createdAt);
                         if (timePassed >= RETENTION_TIME) shouldRemove = true;
                     } else {
-                        // If neither time exists, it's a ghost card, remove immediately
                         shouldRemove = true;
                     }
 
@@ -113,7 +131,17 @@ export const usePatientMode = () => {
                         localStorage.removeItem(`created_${id}`);
                         localStorage.removeItem(`formData_${id}`);
 
-                        // Crucial: Send API request to instruct Monitor to delete this card
+                        // Clear history in the staff dashboard card (supports single-tab testing)
+                        const historyStr = localStorage.getItem("staff_dashboard_history");
+                        if (historyStr) {
+                            try {
+                                // 💡 Replace 'any' with 'PatientSession'
+                                const history: Record<string, PatientSession> = JSON.parse(historyStr);
+                                delete history[id];
+                                localStorage.setItem("staff_dashboard_history", JSON.stringify(history));
+                            } catch (e) { }
+                        }
+
                         fetch("/api/patient-update", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -121,10 +149,10 @@ export const usePatientMode = () => {
                         }).catch(console.error);
 
                         isChanged = true;
-                        return false; // Remove from UI list
+                        return false;
                     }
 
-                    return true; // Keep displaying
+                    return true;
                 });
 
                 if (isChanged) {
@@ -140,7 +168,7 @@ export const usePatientMode = () => {
         };
 
         cleanupExpiredSessions();
-        const interval = setInterval(cleanupExpiredSessions, 5000); // Check every 5 seconds
+        const interval = setInterval(cleanupExpiredSessions, 5000);
         return () => clearInterval(interval);
     }, [isMounted]);
 
@@ -158,8 +186,8 @@ export const usePatientMode = () => {
 
         if (sessionsToKeep.length > 0 && sessionsToClear.length === 0) {
             Swal.fire({
-                title: "ลบไม่ได้!",
-                text: "ทุกรายการในหน้านี้กรอกข้อมูลเสร็จแล้วทั้งหมด ไม่สามารถลบได้",
+                title: "Cannot Delete!",
+                text: "All items on this page have been successfully submitted and cannot be deleted.",
                 icon: "warning",
                 confirmButtonColor: "#3b82f6",
                 customClass: { popup: "rounded-2xl" }
@@ -169,8 +197,8 @@ export const usePatientMode = () => {
 
         if (sessionsToKeep.length > 0 && sessionsToClear.length > 0) {
             await Swal.fire({
-                title: "ลบข้อมูลบางส่วน",
-                text: `ระบบทำการลบ ${sessionsToClear.length} รายการ (และข้าม ${sessionsToKeep.length} รายการที่ส่งฟอร์มแล้ว)`,
+                title: "Partial Deletion",
+                text: `Successfully removed ${sessionsToClear.length} items (skipped ${sessionsToKeep.length} submitted items).`,
                 icon: "info",
                 confirmButtonColor: "#3b82f6",
                 customClass: { popup: "rounded-2xl" }
@@ -184,15 +212,29 @@ export const usePatientMode = () => {
             localStorage.setItem("mock_patient_sessions", JSON.stringify(sessionsToKeep));
         }
 
+        // 💡 2. Replace 'any' with 'PatientSession' for strict typing
+        let history: Record<string, PatientSession> | null = null;
+        const historyStr = localStorage.getItem("staff_dashboard_history");
+        if (historyStr) {
+            try { history = JSON.parse(historyStr); } catch (e) { }
+        }
+
         sessionsToClear.forEach((id) => {
             localStorage.removeItem(`submitted_${id}`);
             localStorage.removeItem(`created_${id}`);
+            localStorage.removeItem(`formData_${id}`);
+            if (history) delete history[id]; // Remove data from Staff cache
+
             fetch("/api/patient-update", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ patientId: id, status: "abandoned", formData: {} }),
             }).catch((e) => console.error("Failed to clear from monitor", e));
         });
+
+        if (history) {
+            localStorage.setItem("staff_dashboard_history", JSON.stringify(history));
+        }
     };
 
     return {

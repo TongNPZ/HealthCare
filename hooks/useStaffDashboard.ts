@@ -18,14 +18,14 @@ export const useStaffDashboard = () => {
         const timer = setTimeout(() => {
             setIsMounted(true);
             setCurrentTime(Date.now());
-            const saved = localStorage.getItem("staff_dashboard_history");
+            const now = Date.now();
+            const valid: Record<string, PatientSession> = {};
 
+            // 1. ดึงประวัติเดิมของหน้า Staff (ถ้ามี)
+            const saved = localStorage.getItem("staff_dashboard_history");
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
-                    const now = Date.now();
-                    const valid: Record<string, PatientSession> = {};
-
                     for (const k in parsed) {
                         const p = parsed[k];
                         const retentionLimit = p.status === "submitted" ? SUBMITTED_RETENTION : (p.status === "waiting" ? WAITING_RETENTION : ACTIVE_RETENTION);
@@ -33,11 +33,46 @@ export const useStaffDashboard = () => {
                             valid[k] = p;
                         }
                     }
-                    setPatients(valid);
                 } catch (e) {
                     console.error(e);
                 }
             }
+
+            // 💡 2. กวาดหาฟอร์มที่เพิ่งกรอกค้างไว้ในเบราว์เซอร์นี้ (สำหรับแก้ปัญหาการเทสแบบกดปุ่ม Back)
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith("formData_")) {
+                    const pId = key.replace("formData_", "");
+                    // ถ้าการ์ดยังไม่ถูกโหลดเข้ามา ให้ดึงมาสร้างการ์ดใหม่
+                    if (!valid[pId]) {
+                        const dataStr = localStorage.getItem(key);
+                        const submittedTime = localStorage.getItem(`submitted_${pId}`);
+                        if (dataStr) {
+                            try {
+                                const formData = JSON.parse(dataStr);
+                                valid[pId] = {
+                                    patientId: pId,
+                                    formData,
+                                    status: submittedTime ? "submitted" : "actively filling",
+                                    // ถ้าเคย submit ให้ใช้อดีต ถ้าพิมพ์ค้างอยู่ให้ใช้เวลาปัจจุบัน
+                                    lastUpdated: submittedTime ? parseInt(submittedTime) : now
+                                };
+                            } catch (e) { }
+                        }
+                    }
+                }
+            }
+
+            // นำการ์ดทั้งหมดที่กวาดเจอขึ้นแสดงบนหน้า Staff
+            setPatients(valid);
+
+            // 💡 Handshake Phase 1: Notify active patients that the staff dashboard is now online
+            fetch("/api/patient-update", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ patientId: "SYSTEM", status: "staff-ready", formData: {} }),
+            }).catch(e => console.error(e));
+
         }, 0);
 
         return () => clearTimeout(timer);
@@ -57,6 +92,9 @@ export const useStaffDashboard = () => {
         const channel = pusherClient.subscribe("patient-channel");
 
         channel.bind("form-update", (data: PusherUpdatePayload) => {
+            // 💡 Handshake Logic: Ignore the system greeting message so it doesn't create a blank card
+            if (data.status === "staff-ready") return;
+
             // Fetch time once to ensure dashboard and card times match perfectly down to the millisecond
             const now = Date.now();
 
